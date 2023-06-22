@@ -1,0 +1,15 @@
+import os
+
+FC=os.environ.get('FC')
+
+fsources = ['sor_params.f95','sor_kernel.f95','sor.f95','sor_routines.f95','sor_superkernel.f95',
+'test_sor_unroll.f95' ]
+
+# no-automatic means no allocation on the stack
+FFLAGS = ['-Wall', '-O3','-mcmodel=medium','-fno-automatic', '-ffree-form','-ffree-line-length-0']
+
+envF=Environment(F95=FC,LINK=FC,F95FLAGS=FFLAGS,F95PATH=['.' ,'/usr/local/include'])
+
+envF.Program('test_sor_unroll_2',fsources,LIBS=['m'],LIBPATH=['.' ,'/usr/lib','/usr/local/lib'])
+
+
