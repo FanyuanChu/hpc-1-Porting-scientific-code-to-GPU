@@ -40,7 +40,7 @@ program test_sor_unroll
     do iter = 1,niters
         print *,iter
 
-        call sor(p0_d, p1_d, rhs_d)
+        call sor<<<blocks, threadsPerBlock>>>(p0_d, p1_d, rhs_d)
         call cudaDeviceSynchronize()
 
         if (mod(iter, 2) == 0) then
