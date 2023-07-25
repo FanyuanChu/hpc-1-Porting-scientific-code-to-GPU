@@ -4,9 +4,9 @@ contains
 
 subroutine sor (p0,p1,rhs)
     use sor_params    
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
+real, dimension(0:im+1,0:jm+1,0:km+1) :: p0
+real, dimension(0:im+1,0:jm+1,0:km+1) :: p1
+real, dimension(0:im+1,0:jm+1,0:km+1) :: rhs 
 integer :: i,j,k
 ! Modified part
 integer, parameter :: threadsPerBlock = 256
@@ -25,12 +25,13 @@ call sor_kernel<<<blocks, threadsPerBlock>>>(p0, p1, rhs)
 call cudaDeviceSynchronize()
 
 end subroutine sor
+
 ! Modified part
 attributes(global) subroutine sor_kernel(p0,p1,rhs)
     use sor_params
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
-real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
+real, dimension(:,:,:), value :: p0
+real, dimension(:,:,:), value :: p1
+real, dimension(:,:,:), value :: rhs 
 integer :: i,j,k
 ! Modified part
 integer :: index
@@ -88,3 +89,4 @@ end if
 end subroutine sor_kernel
 
 end module sor_routines
+
