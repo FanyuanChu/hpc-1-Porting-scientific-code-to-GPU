@@ -1,4 +1,13 @@
-! sor_routines.f95
+! sor_params.f95
+module sor_params
+integer, parameter :: im=1000
+integer, parameter :: jm=1000
+integer, parameter :: km=320
+! New parameters to define the block size
+integer, parameter :: tx = 16
+integer, parameter :: ty = 16
+integer, parameter :: tz = 16
+end module sor_params                                                                                                                                                                  ! sor_routines.f95
 module sor_routines
     use sor_params
     contains
@@ -31,14 +40,5 @@ module sor_routines
             p1_d(i,j,k) = p0_d(i,j,k) + reltmp
         end if
     end subroutine sor
-
-    subroutine swap(A, B)
-        real, dimension(:,:,:), device :: A, B
-        real, dimension(:,:,:), device, allocatable :: temp
-
-        temp = A
-        A = B
-        B = temp
-    end subroutine swap
 
 end module sor_routines
