@@ -32,7 +32,8 @@ real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
 integer :: i,j,k
-integer :: index  // Modified part
+! Modified part
+integer :: index
 real(kind=4), parameter :: cn1 = 1.0/3.0
 real(kind=4), parameter :: cn2l = 0.5
 real(kind=4), parameter :: cn2s = 0.5
