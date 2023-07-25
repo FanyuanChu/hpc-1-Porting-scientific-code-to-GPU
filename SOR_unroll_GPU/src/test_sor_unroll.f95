@@ -6,7 +6,7 @@ program test_sor_unroll
     real, dimension(:,:,:), allocatable :: p0_h, p1_h, rhs_h
     real, dimension(:,:,:), device, allocatable :: p0_d, p1_d, rhs_d
     integer :: iter, niters
-    integer :: i, j, k, blocks
+    integer :: i, j, k
     integer :: clock_rate
     integer, dimension(0:1) :: timestamp
 
@@ -25,10 +25,6 @@ program test_sor_unroll
         end do
     end do
 
-    ! Calculate the number of blocks
-    integer, parameter :: threadsPerBlock = 256
-    blocks = ((im+1) * (jm+1) * (km+1) + threadsPerBlock - 1) / threadsPerBlock
-
     ! Allocate device memory
     allocate(p0_d(0:im+1,0:jm+1,0:km+1))
     allocate(p1_d(0:im+1,0:jm+1,0:km+1))
@@ -44,7 +40,7 @@ program test_sor_unroll
     do iter = 1,niters
         print *,iter
 
-        call sor<<<blocks, threadsPerBlock>>>(p0_d, p1_d, rhs_d)
+        call sor(p0_d, p1_d, rhs_d)
         call cudaDeviceSynchronize()
 
         if (mod(iter, 2) == 0) then
