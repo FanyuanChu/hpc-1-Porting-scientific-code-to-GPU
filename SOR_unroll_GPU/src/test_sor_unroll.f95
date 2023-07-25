@@ -11,6 +11,7 @@ program test_sor_unroll
     integer :: clock_rate
     integer, dimension(0:1) :: timestamp
     integer, dimension(3) :: block_dim, grid_dim
+    real, dimension(:,:,:), device, allocatable :: temp   ! new variable
 
     ! Initialize block and grid dimensions
     block_dim = [256, 1, 1]
@@ -50,7 +51,9 @@ program test_sor_unroll
         call cudaDeviceSynchronize()
 
         if (mod(iter, 2) == 0) then
-            call swap(p0_d, p1_d)
+            temp = p0_d
+            p0_d = p1_d
+            p1_d = temp
         end if
     end do
 
