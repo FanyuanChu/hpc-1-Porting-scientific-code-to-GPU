@@ -8,21 +8,25 @@ real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
 integer :: i,j,k
-integer, parameter :: threadsPerBlock = 256  // Modified part
-integer :: blocks  // Modified part
+! Modified part
+integer, parameter :: threadsPerBlock = 256
+integer :: blocks
 
-// Calculate the number of blocks
-blocks = ((im+1) * (jm+1) * (km+1) + threadsPerBlock - 1) / threadsPerBlock  // Modified part
+! Calculate the number of blocks
+! Modified part
+blocks = ((im+1) * (jm+1) * (km+1) + threadsPerBlock - 1) / threadsPerBlock
 
-// Launch the kernel
-call sor_kernel<<<blocks, threadsPerBlock>>>(p0, p1, rhs)  // Modified part
+! Launch the kernel
+! Modified part
+call sor_kernel<<<blocks, threadsPerBlock>>>(p0, p1, rhs)
 
-// Make sure all threads have finished before continuing
-call cudaDeviceSynchronize()  // Modified part
+! Make sure all threads have finished before continuing
+! Modified part
+call cudaDeviceSynchronize()
 
 end subroutine sor
-
-attributes(global) subroutine sor_kernel(p0,p1,rhs)  // Modified part
+! Modified part
+attributes(global) subroutine sor_kernel(p0,p1,rhs)
     use sor_params
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
 real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
@@ -38,16 +42,17 @@ real(kind=4), parameter :: cn4l = 0.5
 real(kind=4), parameter :: cn4s = 0.5
 real, parameter  :: omega = 1.0
 real :: reltmp
+!Modified part
+index = blockDim%x * blockIdx%x + threadIdx%x
+!Modified part
+if (index > (im+1) * (jm+1) * (km+1)) return
 
-index = blockDim%x * blockIdx%x + threadIdx%x  // Modified part
+!Modified part
+k = index / ((im+1) * (jm+1))
+j = (index - k * (im+1) * (jm+1)) / (im+1)
+i = index - k * (im+1) * (jm+1) - j * (im+1)
 
-if (index > (im+1) * (jm+1) * (km+1)) return  // Modified part
-
-k = index / ((im+1) * (jm+1))  // Modified part
-j = (index - k * (im+1) * (jm+1)) / (im+1)  // Modified part
-i = index - k * (im+1) * (jm+1) - j * (im+1)  // Modified part
-
-// Rest of the code
+! Rest of the code
 if (i==im+1) then
 ! circular
 ! i=im+1
