@@ -1,3 +1,4 @@
+! test_sor_unroll.f95 
 program test_sor_unroll
     use omp_lib
     use sor_params
