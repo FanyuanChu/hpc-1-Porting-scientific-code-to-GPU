@@ -6,7 +6,6 @@
 #include "sor_routines.h"
 #include "test_sor_unroll.h"
 
-/////#define INDEX(i, j, k) ((i)*(JM+2)*(KM+2) + (j)*(KM+2) + (k))
 
 void test_sor_unroll() {
     float *p0 = (float *)malloc((IM+2)*(JM+2)*(KM+2)*sizeof(float));
