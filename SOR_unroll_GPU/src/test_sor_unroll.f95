@@ -7,7 +7,7 @@ use sor_params
 use sor_routines
 real, dimension(:,:,:), device, allocatable :: p0, p1, rhs
 real, dimension(:,:,:), allocatable :: p0_host
-integer :: iter, niters
+integer :: iter, niters, cudaError
 
 integer :: i,j,k
 
@@ -28,6 +28,11 @@ niters = 12
 do iter = 1,niters
     print *,iter
     call sor_kernel<<<(im+1)*(jm+1)*(km+1),1>>>(p0, p1, rhs, i, j, k)
+    cudaError = cudaDeviceSynchronize()
+    if (cudaError /= cudaSuccess) then
+        print *, 'CUDA error: ', cudaGetErrorString(cudaError)
+        stop
+    end if
     p0=p1
 end do
 
