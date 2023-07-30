@@ -4,10 +4,25 @@ module sor_routines
     implicit none
     contains
 
+    subroutine sor(p0,p1,rhs)
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: p0
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out), device :: p1
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: rhs 
+        integer :: i, j, k
+
+        do k = 1,km
+        do j = 1,jm
+        do i = 1,im
+            call sor_kernel(p0,p1,rhs,i,j,k)
+        end do
+        end do
+        end do
+    end subroutine sor
+
     subroutine sor_kernel(p0,p1,rhs,i,j,k) 
-        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: p0  !!! MODIFIED
-        real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out), device :: p1  !!! MODIFIED
-        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: rhs  !!! MODIFIED
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: p0
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out), device :: p1
+        real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: rhs 
         integer, intent(In) :: i,j,k
         real(kind=4), parameter :: cn1 = 1.0/3.0
         real(kind=4), parameter :: cn2l = 0.5
@@ -59,7 +74,7 @@ module sor_routines
             temp6 = cn4s*p0(i,j,k-1)
             p0val = p0(i,j,k)
             reltmp = omega*(cn1 *(temp1 + temp2 + temp3 + temp4 + temp5 + temp6 -rhs(i,j,k))-p0val)
-            p1(i,j,k) = p0val + reltmp
+            p1(i,j,k) = p0val +reltmp
         end if
 
     end subroutine sor_kernel
