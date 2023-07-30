@@ -6,7 +6,7 @@ use omp_lib
 use sor_params
 use sor_routines
 real, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs
-real, dimension(:,:,:), device :: d_p0, d_p1, d_rhs
+real, dimension(:,:,:), allocatable, device :: d_p0, d_p1, d_rhs
 integer :: iter, niters
 integer :: i,j,k
 #ifdef TIMING
