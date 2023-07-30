@@ -6,6 +6,7 @@ use omp_lib
 use sor_params
 use sor_routines
 real, dimension(:,:,:), device, allocatable :: p0, p1, rhs
+real, dimension(:,:,:), allocatable :: p0_host
 integer :: iter, niters
 
 integer :: i,j,k
@@ -26,14 +27,17 @@ end do
 niters = 12
 do iter = 1,niters
     print *,iter
-    call sor_kernel<<<dim3(im+1,jm+1,km+1),1>>>(p0,p1,rhs,i,j,k)
+    call cudaLaunchKernel(sor_kernel, dim3(im+1,jm+1,km+1), 1, p0, p1, rhs, i, j, k)
     p0=p1
 end do
 
-print *, p0(im/2,jm/2,km/2)
+allocate(p0_host(0:im+1,0:jm+1,0:km+1))
+call cudaMemcpy(p0_host, p0, size(p0)*sizeof(real), cudaMemcpyDeviceToHost)
+print *, p0_host(im/2,jm/2,km/2)
 
 deallocate(p0)
 deallocate(p1)
 deallocate(rhs)
+deallocate(p0_host)
 
 end program
