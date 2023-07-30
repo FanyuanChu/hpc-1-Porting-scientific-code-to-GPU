@@ -2,11 +2,11 @@ module sor_routines
 use sor_params
 contains
 
-subroutine sor (p0,p1,rhs)
+attributes(global) subroutine sor (p0,p1,rhs)
     use sor_params
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: p0
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out), device :: p1
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: rhs 
     integer :: i,j,k
     do i = 0,im+1
     do j = 0,jm+1
@@ -19,9 +19,9 @@ end subroutine sor
 
 attributes(device) subroutine sor_kernel(p0,p1,rhs,i,j,k)
     use sor_params
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: p0
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out) :: p1
-    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In) :: rhs 
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: p0
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(Out), device :: p1
+    real, dimension(0:im+1,0:jm+1,0:km+1), intent(In), device :: rhs 
     integer, intent(In) :: i,j,k
     real(kind=4), parameter :: cn1 = 1.0/3.0
     real(kind=4), parameter :: cn2l = 0.5
@@ -51,4 +51,5 @@ attributes(device) subroutine sor_kernel(p0,p1,rhs,i,j,k)
         p1(i,j,k) = p0(i,j,k) +reltmp    
     end if
 end subroutine sor_kernel
+
 end module sor_routines
