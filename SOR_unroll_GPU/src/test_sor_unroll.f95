@@ -11,8 +11,9 @@ program test_sor_unroll
     real, device, allocatable  :: rhs(:,:,:)  
 #endif
     integer :: iter, niters
-    integer :: i,j,k
     real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host  ! Moved up
+    integer :: i,j,k
+
 
     print *, "Initializing arrays..."
     do i = 0,im+1
