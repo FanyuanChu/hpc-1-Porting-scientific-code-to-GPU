@@ -14,6 +14,7 @@ program test_sor_unroll
     integer :: i,j,k
     real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host  ! Moved up
 
+    print *, "Initializing arrays..."
     do i = 0,im+1
     do j = 0,jm+1
     do k = 0,km+1
@@ -22,18 +23,22 @@ program test_sor_unroll
     end do
     end do
     end do
+    print *, "Arrays initialized."
 
     niters = 12/UNROLL
-
+    print *, "Starting iterations..."
     do iter = 1,niters
-        print *,iter
+        print *, "Iteration ", iter
         call sor (p0,p1,rhs)
     #if UNROLL==1
         p0=p1
     #endif
     end do
+    print *, "Iterations completed."
 
     ! Copy data from device to host and print
+    print *, "Copying data from device to host..."
     p0_host = p0
-    print *, p0_host(im/2,jm/2,km/2)
+    print *, "Data copied."
+    print *, "Value at center: ", p0_host(im/2,jm/2,km/2)
 end program test_sor_unroll
