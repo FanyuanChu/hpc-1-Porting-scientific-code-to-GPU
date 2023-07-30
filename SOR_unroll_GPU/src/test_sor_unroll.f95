@@ -1,19 +1,20 @@
-! test_sor_unroll.f95
+! test_sor_unroll.f95 
 program test_sor_unroll
     use sor_params
     use sor_routines
-#ifdef DYN_ALLOC
-    real, device, allocatable  :: p0(:,:,:)  
-    real, device, allocatable  :: p1(:,:,:)  
-    real, device, allocatable  :: rhs(:,:,:)  
-#else
+#ifndef DYN_ALLOC
     real, dimension(0:im+1,0:jm+1,0:km+1), device :: p0
     real, dimension(0:im+1,0:jm+1,0:km+1), device :: p1
     real, dimension(0:im+1,0:jm+1,0:km+1), device :: rhs
+#else
+    real, device, allocatable  :: p0(:,:,:)  
+    real, device, allocatable  :: p1(:,:,:)  
+    real, device, allocatable  :: rhs(:,:,:)  
 #endif
     integer :: iter, niters
 
     integer :: i,j,k
+    real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host
 
     do i = 0,im+1
     do j = 0,jm+1
@@ -29,12 +30,12 @@ program test_sor_unroll
     do iter = 1,niters
         print *,iter
         call sor (p0,p1,rhs)
-#ifdef UNROLL
+    #if UNROLL==1
         p0=p1
-#endif
+    #endif
     end do
+
     ! Copy data from device to host and print
-    real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host
-    !$acc update host(p0_host) from(p0)  ! Add this line
+    p0_host = p0
     print *, p0_host(im/2,jm/2,km/2)
-end program test_sor_unroll
+end program test_sor_unroll                     
