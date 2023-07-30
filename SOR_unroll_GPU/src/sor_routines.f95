@@ -57,8 +57,9 @@ module sor_routines
             temp4 = cn3s*p0(i,j-1,k)
             temp5 = cn4l*p0(i,j,k+1)
             temp6 = cn4s*p0(i,j,k-1)
-            reltmp = omega*(cn1 *(temp1 + temp2 + temp3 + temp4 + temp5 + temp6 -rhs(i,j,k))-p0(i,j,k))
-            p1(i,j,k) = p0(i,j,k) +reltmp
+            reltmp = omega*(cn1 *(temp1 + temp2 + temp3 + temp4 + temp5 + temp6 -rhs(i,j,k)))
+            p1(i,j,k) = p0(i,j,k)
+            p1(i,j,k) = p1(i,j,k) + reltmp
         end if
 
     end subroutine sor_kernel
