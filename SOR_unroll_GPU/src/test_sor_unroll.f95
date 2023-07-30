@@ -1,48 +1,33 @@
 program test_sor_unroll
-#ifdef WITH_OPENMP
-use omp_lib
-#endif
+    use sor_params
+    use sor_routines
+    use cudafor
 
-use sor_params
-use sor_routines
-real, dimension(:,:,:), device, allocatable :: p0, p1, rhs
-real, dimension(:,:,:), allocatable :: p0_host
-integer :: iter, niters, cudaError
+    real, dimension(0:im+1,0:jm+1,0:km+1), device :: p0
+    real, dimension(0:im+1,0:jm+1,0:km+1), device :: p1
+    real, dimension(0:im+1,0:jm+1,0:km+1), device :: rhs
+    integer :: iter, niters
+    integer :: i,j,k
 
-integer :: i,j,k
+    allocate(p0, p1, rhs)
 
-allocate(p0(0:im+1,0:jm+1,0:km+1))
-allocate(p1(0:im+1,0:jm+1,0:km+1))
-allocate(rhs(0:im+1,0:jm+1,0:km+1))
+    do i = 0,im+1
+        do j = 0,jm+1
+            do k = 0,km+1
+                rhs(i,j,k) = 1.0
+                p0(i,j,k) = 1.0
+            end do
+        end do
+    end do
 
-do i = 0,im+1
-do j = 0,jm+1
-do k = 0,km+1
-    rhs(i,j,k) = 1.0
-    p0(i,j,k) = 1.0
-end do
-end do
-end do
+    niters = 12
 
-niters = 12
-do iter = 1,niters
-    print *,iter
-    call sor_kernel<<<(im+1)*(jm+1)*(km+1),1>>>(p0, p1, rhs, i, j, k)
-    cudaError = cudaThreadSynchronize()
-    if (cudaError /= cudaSuccess) then
-        print *, 'CUDA error: ', cudaError
-        stop
-    end if
-    p0=p1
-end do
+    do iter = 1,niters
+        call sor (p0, p1, rhs)
+        p0 = p1
+    end do
 
-allocate(p0_host(0:im+1,0:jm+1,0:km+1))
-p0_host = p0
-print *, p0_host(im/2,jm/2,km/2)
+    print *, p0(im/2,jm/2,km/2)
 
-deallocate(p0)
-deallocate(p1)
-deallocate(rhs)
-deallocate(p0_host)
-
-end program
+    deallocate(p0, p1, rhs)
+end program test_sor_unroll
