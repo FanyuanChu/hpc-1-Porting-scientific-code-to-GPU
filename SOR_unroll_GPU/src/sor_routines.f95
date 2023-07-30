@@ -60,5 +60,7 @@ subroutine sor (p0,p1,rhs)
     grid = dim3((im+1)/bdim + 1, (jm+1)/bdim + 1, (km+1)/bdim + 1)
 
     call sor_kernel<<<grid, block>>>(p0, p1, rhs)
+    call cudaDeviceSynchronize()
 end subroutine sor
+
 end module sor_routines
