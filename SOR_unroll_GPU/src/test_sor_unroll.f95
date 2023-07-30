@@ -27,7 +27,7 @@ program test_sor_unroll
 
     niters = 12/UNROLL
 
-    call system_clock(timestamp(0), clock_rate)  !!! ADDED
+    call system_clock(timestamp(0), clock_rate)  !!! MOVED
 
     do iter = 1,niters
         print *,iter
@@ -37,8 +37,8 @@ program test_sor_unroll
     #endif
     end do
 
-    call system_clock(timestamp(1), clock_rate)  !!! ADDED
-    print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)  !!! ADDED
+    call system_clock(timestamp(1), clock_rate)  !!! MOVED
+    print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)  !!! MOVED
 
     ! Copy data from device to host and print
     real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host
