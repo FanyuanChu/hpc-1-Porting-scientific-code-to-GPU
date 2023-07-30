@@ -5,57 +5,19 @@ use omp_lib
 
 use sor_params
 use sor_routines
-#ifndef DYN_ALLOC
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p0
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p1
-real, dimension(0:im+1,0:jm+1,0:km+1) :: rhs
-#if UNROLL>1
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p2
-#if UNROLL>2
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p3
-#if UNROLL>3
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p4
-#endif
-#endif
-#endif
-#else
-    real, allocatable  :: p0(:,:,:)
-    real, allocatable  :: p1(:,:,:)
-    real, allocatable  :: rhs(:,:,:)
-#if UNROLL>1
-    real, allocatable  :: p2(:,:,:)
-#if UNROLL>2
-    real, allocatable  :: p3(:,:,:)
-#if UNROLL>3
-    real, allocatable  :: p4(:,:,:)
-#endif
-#endif
-#endif
-#endif
+real, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs
+real, dimension(:,:,:), device :: d_p0, d_p1, d_rhs
 integer :: iter, niters
-
 integer :: i,j,k
 #ifdef TIMING
-    integer :: clock_rate
-    integer, dimension(0:1) :: timestamp
+integer :: clock_rate
+integer, dimension(0:1) :: timestamp
 #endif
 
-#ifdef DYN_ALLOC
-    allocate(p0(0:im+1,0:jm+1,0:km+1))
-    allocate(p1(0:im+1,0:jm+1,0:km+1))
-    allocate(rhs(0:im+1,0:jm+1,0:km+1))
-#if UNROLL>1
-    allocate(p2(0:im+1,0:jm+1,0:km+1))
-#if UNROLL>2
-    allocate(p3(0:im+1,0:jm+1,0:km+1))
-#if UNROLL>3
-    allocate(p4(0:im+1,0:jm+1,0:km+1))
-#endif
-#endif
-#endif
-#endif
+allocate(d_p0(0:im+1,0:jm+1,0:km+1))
+allocate(d_p1(0:im+1,0:jm+1,0:km+1))
+allocate(d_rhs(0:im+1,0:jm+1,0:km+1))
 
-!$acc kernels loop independent
 do i = 0,im+1
 do j = 0,jm+1
 do k = 0,km+1
@@ -64,61 +26,32 @@ do k = 0,km+1
 end do
 end do
 end do
-!$acc end kernels
 
-niters = 12/UNROLL
-#ifdef TIMING
-    call system_clock(timestamp(0), clock_rate)
+d_rhs = rhs
+d_p0 = p0
+
+niters = 10
+#ifdef WITH_OPENMP
+call omp_set_num_threads(4)
 #endif
-
-!$acc data copyin(p0,rhs) copy(p1)
+#ifdef TIMING
+call system_clock(count_rate=clock_rate)
+call system_clock(count_max=timestamp(0))
+call system_clock(count=timestamp(1))
+#endif
 do iter = 1,niters
-    print *,iter
-!$RF4A Subroutine sor_superkernel
-!$RF4A Begin Inline
-call sor (p0,p1,rhs)
-#if UNROLL > 1
-call sor (p1,p2,rhs)
-#if UNROLL > 2
-call sor (p2,p3,rhs)
-#if UNROLL > 3
-call sor (p3,p4,rhs)
-#endif
-#endif
-#endif
-!$RF4A End Inline
-!$RF4A End Subroutine sor_superkernel
-#if UNROLL==1
-p0=p1
-#elif UNROLL==2
-p0=p2
-#elif UNROLL==3
-p0=p3
-#elif UNROLL==4
-p0=p4
-#endif
+    call sor(d_p0,d_p1,d_rhs)
+    d_p0 = d_p1
 end do
-!$acc end data
-
 #ifdef TIMING
-    call system_clock(timestamp(1), clock_rate)
-    print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
+call system_clock(count=timestamp(0))
+print *, 'Total time: ', real(timestamp(0)-timestamp(1))/real(clock_rate), ' sec'
 #endif
 
-print *, p0(im/2,jm/2,km/2)
+p1 = d_p1
+print *, p1(im/2,jm/2,km/2)
 
-#ifdef DYN_ALLOC
-    deallocate(p0)
-    deallocate(p1)
-    deallocate(rhs)
-#if UNROLL>1
-    deallocate(p2)
-#if UNROLL>2
-    deallocate(p3)
-#if UNROLL>3
-    deallocate(p4)
-#endif
-#endif
-#endif
-#endif
-end program
+deallocate(d_p0)
+deallocate(d_p1)
+deallocate(d_rhs)
+end program test_sor_unroll
