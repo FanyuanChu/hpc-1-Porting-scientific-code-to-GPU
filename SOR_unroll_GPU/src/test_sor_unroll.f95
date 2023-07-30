@@ -1,4 +1,4 @@
-! test_sor_unroll.f95
+! test_sor_unroll.f95 
 program test_sor_unroll
     use sor_params
     use sor_routines
@@ -12,7 +12,6 @@ program test_sor_unroll
     real, device, allocatable  :: rhs(:,:,:)  
 #endif
     integer :: iter, niters
-
     integer :: i,j,k
     integer :: clock_rate  !!! ADDED
     integer, dimension(0:1) :: timestamp  !!! ADDED
