@@ -30,7 +30,7 @@ do iter = 1,niters
     call sor_kernel<<<(im+1)*(jm+1)*(km+1),1>>>(p0, p1, rhs, i, j, k)
     cudaError = cudaDeviceSynchronize()
     if (cudaError /= cudaSuccess) then
-        print *, 'CUDA error: ', cudaGetErrorString(cudaError)
+        print *, 'CUDA error: ', cudaError
         stop
     end if
     p0=p1
