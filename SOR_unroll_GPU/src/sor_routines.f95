@@ -24,24 +24,30 @@ module sor_routines
         if (i==im+1) then
             ! circular
             ! i=im+1
-            p1(i,j,k) = p0(i-im,j,k)
+            temp1 = p0(i-im,j,k)
+            p1(i,j,k) = temp1
         else if (i==0) then
             ! i=0
             ! circular
-            p1(i,j,k) = p0(i+im,j,k)
+            temp2 = p0(i+im,j,k)
+            p1(i,j,k) = temp2
         else if (j==jm+1) then
             ! open
             ! j = jm+1
-            p1(i,j,k)=p0(i-1,j,k)
+            temp3 = p0(i-1,j,k)
+            p1(i,j,k)=temp3
         else if (j==0) then
             ! fixed
             ! j = 0
             ! We keep the original values
-            p1(i,j,k)=p0(i,j,k)
+            temp4 = p0(i,j,k)
+            p1(i,j,k)=temp4
         else if (k==0) then
-            p1(i,j,k)=p0(i,j,k)
+            temp5 = p0(i,j,k)
+            p1(i,j,k)=temp5
         else if (k==km+1) then
-            p1(i,j,k)=p0(i,j,k)
+            temp6 = p0(i,j,k)
+            p1(i,j,k)=temp6
         else
             ! the core
             ! The actual SOR expression
