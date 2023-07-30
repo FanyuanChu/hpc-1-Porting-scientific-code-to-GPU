@@ -27,12 +27,12 @@ end do
 niters = 12
 do iter = 1,niters
     print *,iter
-    call cudaLaunchKernel(sor_kernel, dim3(im+1,jm+1,km+1), 1, p0, p1, rhs, i, j, k)
+    call sor_kernel<<<dim3(im+1,jm+1,km+1),1>>>(p0, p1, rhs, i, j, k)
     p0=p1
 end do
 
 allocate(p0_host(0:im+1,0:jm+1,0:km+1))
-call cudaMemcpy(p0_host, p0, size(p0)*sizeof(real), cudaMemcpyDeviceToHost)
+p0_host = p0
 print *, p0_host(im/2,jm/2,km/2)
 
 deallocate(p0)
