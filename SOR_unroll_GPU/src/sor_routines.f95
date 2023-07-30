@@ -1,10 +1,9 @@
 module sor_routines
 use sor_params
-contains
-
 type dim3
     integer :: x, y, z
 end type dim3
+contains
 
 attributes(global) subroutine sor_kernel(p0,p1,rhs) 
     use sor_params
