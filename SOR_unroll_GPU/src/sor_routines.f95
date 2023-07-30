@@ -18,7 +18,7 @@ module sor_routines
         real(kind=4), parameter :: cn4s = 0.5
         real, parameter  :: omega = 1.0
         real :: reltmp
-        real :: temp1, temp2, temp3, temp4, temp5, temp6
+        real :: temp1, temp2, temp3, temp4, temp5, temp6, p0val
 
         ! assume i=x =  west to east , y=j=south to north, k=z = vertical
         if (i==im+1) then
@@ -57,9 +57,9 @@ module sor_routines
             temp4 = cn3s*p0(i,j-1,k)
             temp5 = cn4l*p0(i,j,k+1)
             temp6 = cn4s*p0(i,j,k-1)
-            reltmp = omega*(cn1 *(temp1 + temp2 + temp3 + temp4 + temp5 + temp6 -rhs(i,j,k)))
-            p1(i,j,k) = p0(i,j,k)
-            p1(i,j,k) = p1(i,j,k) + reltmp
+            p0val = p0(i,j,k)
+            reltmp = omega*(cn1 *(temp1 + temp2 + temp3 + temp4 + temp5 + temp6 -rhs(i,j,k))-p0val)
+            p1(i,j,k) = p0val + reltmp
         end if
 
     end subroutine sor_kernel
