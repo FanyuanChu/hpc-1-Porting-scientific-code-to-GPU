@@ -27,7 +27,7 @@ end do
 niters = 12
 do iter = 1,niters
     print *,iter
-    call sor_kernel<<<dim3(im+1,jm+1,km+1),1>>>(p0, p1, rhs, i, j, k)
+    call sor_kernel<<<(im+1)*(jm+1)*(km+1),1>>>(p0, p1, rhs, i, j, k)
     p0=p1
 end do
 
