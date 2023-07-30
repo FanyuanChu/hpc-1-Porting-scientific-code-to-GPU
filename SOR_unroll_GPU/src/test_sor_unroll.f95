@@ -34,5 +34,5 @@ program test_sor_unroll
     #endif
     end do
 
-    print *, p0(im/2,jm/2,km/2)
+    ! print *, p0(im/2,jm/2,km/2)  !!! MODIFIED
 end program test_sor_unroll
