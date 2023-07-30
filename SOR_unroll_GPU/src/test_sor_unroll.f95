@@ -52,4 +52,3 @@ program test_sor_unroll
     ! Print
     print *, p0_host(im/2,jm/2,km/2)
 end program test_sor_unroll
-
