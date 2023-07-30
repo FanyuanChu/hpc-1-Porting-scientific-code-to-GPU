@@ -35,7 +35,6 @@ program test_sor_unroll
     end do
     ! Copy data from device to host and print
     real, dimension(0:im+1,0:jm+1,0:km+1) :: p0_host
-    p0_host = p0
+    !$acc update host(p0_host) from(p0)  ! Add this line
     print *, p0_host(im/2,jm/2,km/2)
 end program test_sor_unroll
-
