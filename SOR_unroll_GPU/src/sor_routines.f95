@@ -1,3 +1,4 @@
+#include 'cudafor'
 module sor_routines
     use cudafor
     use sor_params
