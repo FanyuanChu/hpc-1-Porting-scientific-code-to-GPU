@@ -8,6 +8,7 @@ real, allocatable :: host_p0(:,:,:)
 integer :: iter, niters, i, j, k
 integer :: clock_rate
 integer, dimension(0:1) :: timestamp
+integer, dimension(3) :: gridDim, blockDim
 
 allocate(p0(0:im+1,0:jm+1,0:km+1))
 allocate(p1(0:im+1,0:jm+1,0:km+1))
@@ -28,6 +29,8 @@ end do
 
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
+blockDim = [1,1,1] ! Assuming each thread will handle one grid point
+gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)] ! Computing grid dimensions
 
 do iter = 1,niters
     print *,iter
@@ -36,15 +39,15 @@ do iter = 1,niters
     !call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
-    !call cudaDeviceSynchronize()
-    !call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
-    !call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
-    !call cudaThreadSynchronize()
-    p0 = p4
+    if (size(p0) == size(p4)) then
+        p0 = p4
+    else
+        print *, 'Size mismatch between p0 and p4'
+    end if
 end do
 
 call system_clock(timestamp(1), clock_rate)
