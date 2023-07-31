@@ -1,30 +1,64 @@
 ! gen_sor_superkernel.cuf
 program main
-    use cudafor
-    use singleton_module_sor_superkernel, only : sor_superkernel
-    implicit none
-    integer, parameter :: im=100
-    integer, parameter :: jm=100
-    integer, parameter :: km=80
+#ifdef WITH_OPENMP
+use omp_lib
+#endif
+use singleton_module_sor_superkernel, only : sor_superkernel
+! Declarations
+      implicit none
+     integer, parameter :: im=100
+     integer, parameter :: jm=100
+     integer, parameter :: km=80
     integer :: i
+    integer :: j
+    integer :: k
     integer :: global_id_0
-    real, dimension(1:853128), device :: p0_0
-    real, dimension(1:853128), device :: rhs_0
-    real, dimension(1:853128), device :: p2_1
-    integer, parameter :: st_stage_kernel_1=1
+    real, device, dimension(:), allocatable :: p0_0
+    real, device, dimension(:), allocatable :: rhs_0
+    real, device, dimension(:), allocatable :: p2_1
+    real, dimension(:), allocatable :: p0_0_host
+      integer, parameter :: st_stage_kernel_1=1
     integer :: state_ptr
-    integer, parameter :: niters=100 !300
+    integer, device :: state_ptr_d
     integer :: iter
+#ifdef TIMING
+    integer :: clock_rate
+    integer, dimension(0:1) :: timestamp
+#endif
 
+    allocate(p0_0(1:(im+1)*(jm+1)*(km+1)))
+    allocate(rhs_0(1:(im+1)*(jm+1)*(km+1)))
+    allocate(p2_1(1:(im+1)*(jm+1)*(km+1)))
     do i = 1,(im+1)*(jm+1)*(km+1)
         rhs_0(i) = 1.0
         p0_0(i) = 1.0
     end do
 
+#ifdef TIMING
+    call system_clock(timestamp(0), clock_rate)
+#endif
+! Loops over stage calls
     state_ptr = st_stage_kernel_1
+    state_ptr_d = state_ptr
     do iter = 1, niters
-        do global_id_0 = 1, 853128
-            call sor_superkernel<<<1, 1>>>(global_id_0, p0_0, rhs_0, p2_1, state_ptr)
-        end do
+#ifdef WITH_OPENMP
+!$OMP PARALLEL DO
+#endif    
+    do global_id_0 = 1, 853128
+      call sor_superkernel(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
     end do
-end program main
+#ifdef WITH_OPENMP
+!$OMP END PARALLEL DO
+#endif    
+    end do
+#ifdef TIMING
+    call system_clock(timestamp(1), clock_rate)
+    print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
+#endif
+#ifdef CHECKSUM
+    allocate(p0_0_host(1:(im+1)*(jm+1)*(km+1)))
+    p0_0_host = p0_0
+    print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+#endif
+end program main  
+
