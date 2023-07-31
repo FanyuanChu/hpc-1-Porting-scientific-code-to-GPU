@@ -29,23 +29,18 @@ end do
 
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
-! blockDim = [1,1,1] ! Assuming each thread will handle one grid point
-! gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)] ! Computing grid dimensions
-
 blockDim = [16,16,4]
 gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
 
 do iter = 1,niters
     print *,iter
-    call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
-    !call cudaDeviceSynchronize()
-    !call cudaThreadSynchronize()
+    call sor(p0,p1,rhs,gridDim,blockDim)
 
-    call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
+    call sor(p1,p2,rhs,gridDim,blockDim)
 
-    call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
+    call sor(p2,p3,rhs,gridDim,blockDim)
 
-    call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
+    call sor(p3,p4,rhs,gridDim,blockDim)
     if (size(p0) == size(p4)) then
         p0 = p4
     else
