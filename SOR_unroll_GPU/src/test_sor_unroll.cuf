@@ -1,5 +1,4 @@
 ! test_sor_unroll.cuf
-! test_sor_unroll.cuf
 program test_sor_unroll
 use cudafor
 use sor_params
@@ -73,28 +72,28 @@ print *, "Starting the main loop"
 
 do iter = 1,niters
     print *, "Iteration: ", iter
-    call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
+    call sor<<<gridDim, blockDim>>>(p0,p1,rhs,gridDim,blockDim)
     error = cudaDeviceSynchronize()
     if (error /= cudaSuccess) then
         print *, "First call to sor failed with error: ", cudaGetErrorString(error)
         stop
     end if
 
-    call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
+    call sor<<<gridDim, blockDim>>>(p1,p2,rhs,gridDim,blockDim)
     error = cudaDeviceSynchronize()
     if (error /= cudaSuccess) then
         print *, "Second call to sor failed with error: ", cudaGetErrorString(error)
         stop
     end if
 
-    call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
+    call sor<<<gridDim, blockDim>>>(p2,p3,rhs,gridDim,blockDim)
     error = cudaDeviceSynchronize()
     if (error /= cudaSuccess) then
         print *, "Third call to sor failed with error: ", cudaGetErrorString(error)
         stop
     end if
 
-    call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
+    call sor<<<gridDim, blockDim>>>(p3,p4,rhs,gridDim,blockDim)
     error = cudaDeviceSynchronize()
     if (error /= cudaSuccess) then
         print *, "Fourth call to sor failed with error: ", cudaGetErrorString(error)
