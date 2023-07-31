@@ -60,7 +60,18 @@ do i = 0,im+1
     do j = 0,jm+1
         do k = 0,km+1
             rhs(i,j,k) = 1.0
+            error = cudaGetLastError()
+            if (error /= cudaSuccess) then
+                print *, "Error setting value for rhs at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
+                stop
+            end if
+
             p0(i,j,k) = 1.0
+            error = cudaGetLastError()
+            if (error /= cudaSuccess) then
+                print *, "Error setting value for p0 at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
+                stop
+            end if
         end do
     end do
 end do
