@@ -1,3 +1,4 @@
+! test_sor_unroll.cuf
 program test_sor_unroll
 use cudafor
 use sor_params
