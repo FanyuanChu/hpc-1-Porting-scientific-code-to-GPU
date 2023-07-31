@@ -24,7 +24,9 @@ state_ptr_d = state_ptr
 
 do iter = 1, 100
   global_id_0 = 853128
-  call sor_superkernel<<<853128,1>>>(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
+  ! call sor_superkernel<<<853128,1>>>(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
+  call sor_superkernel<<<8531,128>>>(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
+
 end do
 
 allocate(p0_0_host(1:(im+1)*(jm+1)*(km+1)))
