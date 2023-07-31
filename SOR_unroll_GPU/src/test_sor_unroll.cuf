@@ -11,6 +11,7 @@ integer, dimension(0:1) :: timestamp
 integer, dimension(3) :: gridDim, blockDim
 integer :: error
 
+print *, "Starting allocations"
 allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
 if (error /= cudaSuccess) then
     print *, "Memory allocation failed for p0 with error:", cudaGetErrorString(error)
@@ -52,6 +53,7 @@ if (error /= cudaSuccess) then
     print *, "Memory allocation failed for host_p0 with error:", cudaGetErrorString(error)
     stop
 end if
+print *, "Allocations completed"
 
 do i = 0,im+1
     do j = 0,jm+1
@@ -66,16 +68,18 @@ niters = 12/4
 call system_clock(timestamp(0), clock_rate)
 blockDim = [16,16,4]
 gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
+print *, "Starting the main loop"
 
 do iter = 1,niters
-    print *,iter
-    call sor(p0,p1,rhs,gridDim,blockDim)
-
-    call sor(p1,p2,rhs,gridDim,blockDim)
-
-    call sor(p2,p3,rhs,gridDim,blockDim)
-
-    call sor(p3,p4,rhs,gridDim,blockDim)
+    print *, "Iteration: ", iter
+    call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
+    print *, "First call to sor completed"
+    call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
+    print *, "Second call to sor completed"
+    call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
+    print *, "Third call to sor completed"
+    call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
+    print *, "Fourth call to sor completed"
     if (size(p0) == size(p4)) then
         p0 = p4
     else
@@ -83,10 +87,11 @@ do iter = 1,niters
     end if
 end do
 
+print *, "Main loop completed"
 call system_clock(timestamp(1), clock_rate)
 host_p0 = p0
 print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-print *, host_p0(im/2,jm/2,km/2)
+print *, "Result: ", host_p0(im/2,jm/2,km/2)
 
 deallocate(p0)
 deallocate(p1)
