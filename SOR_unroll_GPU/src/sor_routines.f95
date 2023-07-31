@@ -34,10 +34,12 @@ subroutine sor_kernel(p0,p1,rhs,i,j,k)
     real :: reltmp, p1_temp   ! Add a temporary variable for p1
 
     ! The actual SOR expression
-    reltmp = omega*(cn1 *(cn2l*p0(i+1,j,k) + &
+    real :: omega_p0_ijk
+    omega_p0_ijk = omega * (cn1 *(cn2l*p0(i+1,j,k) + &
         cn2s*p0(i-1,j,k) +cn3l*p0(i,j+1,k) + &
         cn3s*p0(i,j-1,k) +cn4l*p0(i,j,k+1) + &
-        cn4s*p0(i,j,k-1) -rhs(i,j,k))-p0(i,j,k))
+        cn4s*p0(i,j,k-1) -rhs(i,j,k)))
+    reltmp = omega_p0_ijk - p0(i,j,k)
     p1_temp = p0(i,j,k) +reltmp  ! Store the result in p1_temp first
     p1(i,j,k) = p1_temp  ! Then write the result to p1
 end subroutine sor_kernel
