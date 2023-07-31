@@ -9,14 +9,49 @@ integer :: iter, niters, i, j, k
 integer :: clock_rate
 integer, dimension(0:1) :: timestamp
 integer, dimension(3) :: gridDim, blockDim
+integer :: error
 
-allocate(p0(0:im+1,0:jm+1,0:km+1))
-allocate(p1(0:im+1,0:jm+1,0:km+1))
-allocate(rhs(0:im+1,0:jm+1,0:km+1))
-allocate(p2(0:im+1,0:jm+1,0:km+1))
-allocate(p3(0:im+1,0:jm+1,0:km+1))
-allocate(p4(0:im+1,0:jm+1,0:km+1))
-allocate(host_p0(0:im+1,0:jm+1,0:km+1))
+allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for p0 with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(p1(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for p1 with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(rhs(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for rhs with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(p2(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for p2 with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(p3(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for p3 with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(p4(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for p4 with error:", cudaGetErrorString(error)
+    stop
+end if
+
+allocate(host_p0(0:im+1,0:jm+1,0:km+1),stat=error)
+if (error /= cudaSuccess) then
+    print *, "Memory allocation failed for host_p0 with error:", cudaGetErrorString(error)
+    stop
+end if
 
 do i = 0,im+1
     do j = 0,jm+1
