@@ -61,4 +61,3 @@ use singleton_module_sor_superkernel, only : sor_superkernel
     print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 #endif
 end program main  
-
