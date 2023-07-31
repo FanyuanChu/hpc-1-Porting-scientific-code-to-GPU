@@ -59,18 +59,14 @@ attributes(global) subroutine sor_kernel(p0,p1,rhs,im,jm,km)
 
 end subroutine sor_kernel
 
-subroutine sor(p0,p1,rhs)
+subroutine sor(p0,p1,rhs,gridDim,blockDim)
     use sor_params    
     real, dimension(:,:,:), device :: p0
     real, dimension(:,:,:), device :: p1
     real, dimension(:,:,:), device :: rhs 
-    integer :: i,j,k
-    integer, dimension(3) :: block_dim, grid_dim
+    integer, dimension(3) :: gridDim, blockDim
 
-    block_dim = [1,1,1]
-    grid_dim = [im+2, jm+2, km+2]
-
-    call sor_kernel<<<grid_dim, block_dim>>>(p0, p1, rhs, im, jm, km)
+    call sor_kernel<<<gridDim, blockDim>>>(p0, p1, rhs, im, jm, km)
 end subroutine sor
 
 end module sor_routines
