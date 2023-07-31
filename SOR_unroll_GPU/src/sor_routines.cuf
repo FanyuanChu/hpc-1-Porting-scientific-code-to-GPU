@@ -56,8 +56,12 @@ subroutine sor(p0,p1,rhs)
     real, dimension(:,:,:), device :: p1
     real, dimension(:,:,:), device :: rhs 
     integer :: i,j,k
+    integer, dimension(3) :: block_dim, grid_dim
 
-    call sor_kernel<<<dim3(im+2, jm+2, km+2), dim3(1,1,1)>>>(p0, p1, rhs, im, jm, km)
+    block_dim = [1,1,1]
+    grid_dim = [im+2, jm+2, km+2]
+
+    call sor_kernel<<<grid_dim, block_dim>>>(p0, p1, rhs, im+2, jm+2, km+2)
 end subroutine sor
 
 end module sor_routines
