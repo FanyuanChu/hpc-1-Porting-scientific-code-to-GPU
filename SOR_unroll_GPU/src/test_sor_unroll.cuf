@@ -57,10 +57,24 @@ print *, "Allocations completed"
 
 print *, "Starting array initialization"
 do i = 0,im+1
+    print *, "i: ", i
     do j = 0,jm+1
+        print *, "j: ", j
         do k = 0,km+1
+            print *, "k: ", k
             rhs(i,j,k) = 1.0
+            error = cudaDeviceSynchronize()
+            if (error /= cudaSuccess) then
+                print *, "Error setting value for rhs at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
+                stop
+            end if
+
             p0(i,j,k) = 1.0
+            error = cudaDeviceSynchronize()
+            if (error /= cudaSuccess) then
+                print *, "Error setting value for p0 at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
+                stop
+            end if
         end do
     end do
 end do
