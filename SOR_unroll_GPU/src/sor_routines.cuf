@@ -4,7 +4,7 @@ use cudafor
 use sor_params
 contains
 
-attributes(global) subroutine sor_kernel(p0,p1,rhs)
+attributes(global) subroutine sor_kernel(p0,p1,rhs,im,jm,km)
     use sor_params
     real, dimension(im+2, jm+2, km+2) :: p0, p1, rhs
     real(kind=4), parameter :: cn1 = 1.0/3.0
