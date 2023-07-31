@@ -32,16 +32,18 @@ call system_clock(timestamp(0), clock_rate)
 do iter = 1,niters
     print *,iter
     call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
-    call cudaDeviceSynchronize()
+    !call cudaDeviceSynchronize()
+    call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
-    call cudaDeviceSynchronize()
+    !call cudaDeviceSynchronize()
+    call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
-    call cudaDeviceSynchronize()
+    call cudaThreadSynchronize()
 
     call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
-    call cudaDeviceSynchronize()
+    call cudaThreadSynchronize()
     p0 = p4
 end do
 
