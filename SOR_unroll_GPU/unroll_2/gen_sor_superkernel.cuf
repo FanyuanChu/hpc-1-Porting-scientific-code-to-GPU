@@ -11,6 +11,7 @@ integer, parameter :: st_stage_kernel_1=1
 integer :: state_ptr
 integer, device :: state_ptr_d
 integer :: iter
+integer :: error
 
 allocate(p0_0(1:(im+1)*(jm+1)*(km+1)))
 allocate(rhs_0(1:(im+1)*(jm+1)*(km+1)))
@@ -24,9 +25,12 @@ state_ptr_d = state_ptr
 
 do iter = 1, 100
   global_id_0 = 853128
-  ! call sor_superkernel<<<853128,1>>>(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
   call sor_superkernel<<<8531,128>>>(global_id_0, p0_0, rhs_0, p2_1,state_ptr_d)
-
+  error = cudaDeviceSynchronize()
+  if (error /= cudaSuccess) then
+      print *, 'Error synchronizing: ', cudaGetErrorString(error)
+      stop
+  end if
 end do
 
 allocate(p0_0_host(1:(im+1)*(jm+1)*(km+1)))
