@@ -55,6 +55,7 @@ if (error /= cudaSuccess) then
 end if
 print *, "Allocations completed"
 
+print *, "Starting array initialization"
 do i = 0,im+1
     do j = 0,jm+1
         do k = 0,km+1
@@ -63,6 +64,7 @@ do i = 0,im+1
         end do
     end do
 end do
+print *, "Array initialization completed"
 
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
