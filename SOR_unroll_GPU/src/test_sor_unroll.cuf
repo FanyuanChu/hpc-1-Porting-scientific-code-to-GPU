@@ -2,7 +2,8 @@ program test_sor_unroll
 use cudafor
 use sor_params
 use sor_routines
-real, device, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs, p2, p3, p4
+real, allocatable, device :: p0(:,:,:), p1(:,:,:), rhs(:,:,:), p2(:,:,:), p3(:,:,:), p4(:,:,:)
+real, allocatable :: host_p0(:,:,:)
 integer :: iter, niters, i, j, k
 integer :: clock_rate
 integer, dimension(0:1) :: timestamp
@@ -13,6 +14,7 @@ allocate(rhs(0:im+1,0:jm+1,0:km+1))
 allocate(p2(0:im+1,0:jm+1,0:km+1))
 allocate(p3(0:im+1,0:jm+1,0:km+1))
 allocate(p4(0:im+1,0:jm+1,0:km+1))
+allocate(host_p0(0:im+1,0:jm+1,0:km+1))
 
 do i = 0,im+1
     do j = 0,jm+1
@@ -46,8 +48,9 @@ do iter = 1,niters
 end do
 
 call system_clock(timestamp(1), clock_rate)
+host_p0 = p0
 print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-print *, p0(im/2,jm/2,km/2)
+print *, host_p0(im/2,jm/2,km/2)
 
 deallocate(p0)
 deallocate(p1)
@@ -55,4 +58,5 @@ deallocate(rhs)
 deallocate(p2)
 deallocate(p3)
 deallocate(p4)
+deallocate(host_p0)
 end program
