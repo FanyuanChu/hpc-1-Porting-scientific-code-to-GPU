@@ -66,19 +66,19 @@ end do
 
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
-blockDim = [16,16,4]
+blockDim = [8,8,8]
 gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
 print *, "Starting the main loop"
 
 do iter = 1,niters
     print *, "Iteration: ", iter
-    call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
+    call sor(p0,p1,rhs,gridDim,blockDim)
     print *, "First call to sor completed"
-    call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
+    call sor(p1,p2,rhs,gridDim,blockDim)
     print *, "Second call to sor completed"
-    call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
+    call sor(p2,p3,rhs,gridDim,blockDim)
     print *, "Third call to sor completed"
-    call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
+    call sor(p3,p4,rhs,gridDim,blockDim)
     print *, "Fourth call to sor completed"
     if (size(p0) == size(p4)) then
         p0 = p4
