@@ -1,0 +1,64 @@
+! stage_kernel_1.cuf
+module singleton_module_stage_kernel_1
+
+contains
+
+attributes(global) subroutine stage_kernel_1(global_id_0,p0_0,rhs_0,p2_1)
+    implicit none
+    real, parameter :: cn1___sor_map_21_scal=0.333333333333333
+    real, parameter :: cn2l___sor_map_21_scal=0.5
+    real, parameter :: cn2s___sor_map_21_scal=0.5
+    real, parameter :: cn3l___sor_map_21_scal=0.5
+    real, parameter :: cn3s___sor_map_21_scal=0.5
+    real, parameter :: cn4l___sor_map_21_scal=0.5
+    real, parameter :: cn4s___sor_map_21_scal=0.5
+    integer, parameter :: omega___sor_map_21_scal=1
+    real, parameter :: cn1___sor_map_45_scal=0.333333333333333
+    real, parameter :: cn2l___sor_map_45_scal=0.5
+    real, parameter :: cn2s___sor_map_45_scal=0.5
+    real, parameter :: cn3l___sor_map_45_scal=0.5
+    real, parameter :: cn3s___sor_map_45_scal=0.5
+    real, parameter :: cn4l___sor_map_45_scal=0.5
+    real, parameter :: cn4s___sor_map_45_scal=0.5
+    integer, parameter :: omega___sor_map_45_scal=1
+    integer :: i___sor_map_45_scal
+    integer :: j___sor_map_45_scal
+    integer :: k___sor_map_45_scal
+    real :: reltmp___sor_map_45_scal
+    integer :: i_range___sor_map_45_scal
+    integer :: j_range___sor_map_45_scal
+    integer :: k_range___sor_map_45_scal
+    integer :: i_rel___sor_map_45_scal
+    integer :: j_rel___sor_map_45_scal
+    integer :: k_rel___sor_map_45_scal
+    integer :: i___sor_map_21_scal
+    integer :: j___sor_map_21_scal
+    integer :: k___sor_map_21_scal
+    real :: reltmp___sor_map_21_scal
+    integer :: i_range___sor_map_21_scal
+    integer :: j_range___sor_map_21_scal
+    integer :: k_range___sor_map_21_scal
+    integer :: i_rel___sor_map_21_scal
+    integer :: j_rel___sor_map_21_scal
+    integer :: k_rel___sor_map_21_scal
+    integer :: i___f_maps_p2_1_0
+    real, dimension(9) :: p1_s_0___f_comp_p2_1_2
+    real :: rhs_0___f_comp_p2_1_2
+    real, dimension(1:853128), device :: p0_0
+    real, dimension(1:853128), device :: rhs_0
+    real, dimension(1:853128), device :: p2_1
+    integer, dimension(1:9), parameter :: s1=(/ 103, 10405, 10407, 10506, 10507, 10508, 10607, 10609, &
+       20911 /)
+    real, dimension(1:9,1:9) :: svec_p2_1_3
+    integer :: s_idx_1
+    integer :: s_idx_2
+    real, dimension(1:9) :: svec_p2_1_4
+    integer :: global_id_0
+    integer :: idx
+    idx = global_id_0
+
+    ! stage_kernel_1 code...
+
+end subroutine stage_kernel_1
+
+end module singleton_module_stage_kernel_1
