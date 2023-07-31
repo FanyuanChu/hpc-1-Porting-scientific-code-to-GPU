@@ -50,7 +50,7 @@ module sor_routines
 
         call sor_kernel<<<blocks, threads>>>(p0, p1, rhs)
         
-        call cudaDeviceSynchronize()
+        cudaDeviceSynchronize()
     end subroutine sor
 
 end module sor_routines
