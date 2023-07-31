@@ -33,7 +33,7 @@ call system_clock(timestamp(0), clock_rate)
 ! gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)] ! Computing grid dimensions
 
 blockDim = [16,16,4]
-gridDim = [(im+2+blockDim(1)-1)/block_dim(1), (jm+2+blockDim(2)-1)/block_dim(2), (km+2+blockDim(3)-1)/blockDim(3)]
+gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
 
 do iter = 1,niters
     print *,iter
