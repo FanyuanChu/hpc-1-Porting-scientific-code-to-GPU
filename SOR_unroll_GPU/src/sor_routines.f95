@@ -49,7 +49,7 @@ module sor_routines
         blocks = dim3((im+2+threads%x-1)/threads%x, (jm+2+threads%y-1)/threads%y, (km+2+threads%z-1)/threads%z)
 
         call sor_kernel<<<blocks, threads>>>(p0, p1, rhs)
-call cudaDeviceSynchronize()
+        cudaDeviceSynchronize()
     end subroutine sor
 
 
