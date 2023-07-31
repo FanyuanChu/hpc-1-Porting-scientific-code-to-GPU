@@ -8,13 +8,13 @@ attributes(global) subroutine sor_superkernel(global_id_0, p0_0, rhs_0, p2_1, st
     implicit none
     integer, dimension(:), device :: global_id_0
     real, dimension(:), device :: p0_0, rhs_0, p2_1
-    integer, device :: state_ptr
+    integer, dimension(:), device :: state_ptr
     integer, parameter :: st_stage_kernel_1=1
     integer :: state
     integer :: idx
 
     idx = (blockIdx%x - 1) * blockDim%x + threadIdx%x
-    state = state_ptr
+    state = state_ptr(idx)
 
     if (state == st_stage_kernel_1) then
       call stage_kernel_1(global_id_0(idx), p0_0, rhs_0, p2_1)
