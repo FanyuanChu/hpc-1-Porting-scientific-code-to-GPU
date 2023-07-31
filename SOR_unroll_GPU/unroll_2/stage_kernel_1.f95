@@ -1,3 +1,4 @@
+! stage_kernel_1.f95
 module singleton_module_stage_kernel_1
 
 contains
