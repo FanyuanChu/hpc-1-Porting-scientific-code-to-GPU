@@ -1,17 +1,18 @@
 program test_sor_unroll
-#ifdef WITH_OPENMP
-use omp_lib
-#endif
-
+use cudafor
 use sor_params
 use sor_routines
+real, device, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs, p2, p3, p4
+integer :: iter, niters, i, j, k
+integer :: clock_rate
+integer, dimension(0:1) :: timestamp
 
-real, dimension(:,:,:), device, allocatable :: p0_d, p1_d, rhs_d
-real, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs
-
-allocate(p0_d(0:im+1,0:jm+1,0:km+1))
-allocate(p1_d(0:im+1,0:jm+1,0:km+1))
-allocate(rhs_d(0:im+1,0:jm+1,0:km+1))
+allocate(p0(0:im+1,0:jm+1,0:km+1))
+allocate(p1(0:im+1,0:jm+1,0:km+1))
+allocate(rhs(0:im+1,0:jm+1,0:km+1))
+allocate(p2(0:im+1,0:jm+1,0:km+1))
+allocate(p3(0:im+1,0:jm+1,0:km+1))
+allocate(p4(0:im+1,0:jm+1,0:km+1))
 
 do i = 0,im+1
     do j = 0,jm+1
@@ -22,20 +23,36 @@ do i = 0,im+1
     end do
 end do
 
-p0_d = p0
-p1_d = p1
-rhs_d = rhs
+niters = 12/4
+call system_clock(timestamp(0), clock_rate)
 
-call sor(p0_d, p1_d, rhs_d)
+do iter = 1,niters
+    print *,iter
+    call sor<<<gridDim, blockDim>>>(p0,p1,rhs)
+    call cudaDeviceSynchronize()
+    p0 = p1
 
-p0 = p0_d
-p1 = p1_d
-rhs = rhs_d
+    call sor<<<gridDim, blockDim>>>(p1,p2,rhs)
+    call cudaDeviceSynchronize()
+    p0 = p2
 
+    call sor<<<gridDim, blockDim>>>(p2,p3,rhs)
+    call cudaDeviceSynchronize()
+    p0 = p3
+
+    call sor<<<gridDim, blockDim>>>(p3,p4,rhs)
+    call cudaDeviceSynchronize()
+    p0 = p4
+end do
+
+call system_clock(timestamp(1), clock_rate)
+print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
 print *, p0(im/2,jm/2,km/2)
 
-deallocate(p0_d)
-deallocate(p1_d)
-deallocate(rhs_d)
-
-end program test_sor_unroll
+deallocate(p0)
+deallocate(p1)
+deallocate(rhs)
+deallocate(p2)
+deallocate(p3)
+deallocate(p4)
+end program
