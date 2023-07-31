@@ -1,0 +1,41 @@
+program test_sor_unroll
+#ifdef WITH_OPENMP
+use omp_lib
+#endif
+
+use sor_params
+use sor_routines
+
+real, dimension(:,:,:), device, allocatable :: p0_d, p1_d, rhs_d
+real, dimension(0:im+1,0:jm+1,0:km+1) :: p0, p1, rhs
+
+allocate(p0_d(0:im+1,0:jm+1,0:km+1))
+allocate(p1_d(0:im+1,0:jm+1,0:km+1))
+allocate(rhs_d(0:im+1,0:jm+1,0:km+1))
+
+do i = 0,im+1
+    do j = 0,jm+1
+        do k = 0,km+1
+            rhs(i,j,k) = 1.0
+            p0(i,j,k) = 1.0
+        end do
+    end do
+end do
+
+p0_d = p0
+p1_d = p1
+rhs_d = rhs
+
+call sor(p0_d, p1_d, rhs_d)
+
+p0 = p0_d
+p1 = p1_d
+rhs = rhs_d
+
+print *, p0(im/2,jm/2,km/2)
+
+deallocate(p0_d)
+deallocate(p1_d)
+deallocate(rhs_d)
+
+end program test_sor_unroll
