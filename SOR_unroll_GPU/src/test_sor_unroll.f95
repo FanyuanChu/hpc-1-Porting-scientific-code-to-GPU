@@ -1,7 +1,7 @@
 program test_sor_unroll
     use sor_params
     use sor_routines
-    use cudafor    ! Add this line to use CUDA in your Fortran code
+    use cudafor
 
     real, dimension(:,:,:), allocatable, device :: p0
     real, dimension(:,:,:), allocatable, device :: p1
@@ -26,7 +26,7 @@ program test_sor_unroll
     p0 = p0_host
     rhs = p0
 
-    niters = 12/4
+    niters = 12
 
     do iter = 1,niters
         call sor (p0, p1, rhs)
