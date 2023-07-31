@@ -35,7 +35,7 @@ module sor_routines
             p1(i,j,k) = p0(i,j,k)
         end if
     end subroutine sor_kernel
-
+    
     subroutine sor (p0,p1,rhs)
         use cudafor
         use sor_params
@@ -45,12 +45,12 @@ module sor_routines
         real, dimension(0:im+1,0:jm+1,0:km+1), device, intent(In) :: rhs
         type(dim3) :: threads, blocks
 
-        threads = dim3(16,16,4)  ! this to needs
+        threads = dim3(16,16,4)  ! adjust this to your needs
         blocks = dim3((im+2+threads%x-1)/threads%x, (jm+2+threads%y-1)/threads%y, (km+2+threads%z-1)/threads%z)
 
         call sor_kernel<<<blocks, threads>>>(p0, p1, rhs)
-        
-        cudaDeviceSynchronize()
+        cudaDeviceSynchronize
     end subroutine sor
+
 
 end module sor_routines
