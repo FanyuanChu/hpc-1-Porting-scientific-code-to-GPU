@@ -1,3 +1,4 @@
+! gen_sor_superkernel.f95
 program main
 #ifdef WITH_OPENMP
 use omp_lib
