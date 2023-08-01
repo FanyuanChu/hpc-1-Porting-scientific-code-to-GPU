@@ -1,0 +1,43 @@
+! stage_kernel_1.cuf
+module singleton_module_stage_kernel_1
+
+contains
+
+attributes(global) subroutine stage_kernel_1(global_id_0,p0_0,rhs_0,p3_1)
+    use cudafor
+    implicit none
+    real, parameter :: cn1___sor_map_22_scal=0.333333333333333
+    real, parameter :: cn2l___sor_map_22_scal=0.5
+    real, parameter :: cn2s___sor_map_22_scal=0.5
+    real, parameter :: cn3l___sor_map_22_scal=0.5
+    real, parameter :: cn3s___sor_map_22_scal=0.5
+    real, parameter :: cn4l___sor_map_22_scal=0.5
+    real, parameter :: cn4s___sor_map_22_scal=0.5
+    integer, parameter :: omega___sor_map_22_scal=1
+    real, parameter :: cn1___sor_map_46_scal=0.333333333333333
+    real, parameter :: cn2l___sor_map_46_scal=0.5
+    real, parameter :: cn2s___sor_map_46_scal=0.5
+    real, parameter :: cn3l___sor_map_46_scal=0.5
+    real, parameter :: cn3s___sor_map_46_scal=0.5
+    real, parameter :: cn4l___sor_map_46_scal=0.5
+    real, parameter :: cn4s___sor_map_46_scal=0.5
+    integer, parameter :: omega___sor_map_46_scal=1
+    integer :: global_id_0
+    real, dimension(1:*), device, intent(in) :: p0_0
+    real, dimension(1:*), device, intent(in) :: rhs_0
+    real, dimension(1:*), device, intent(out) :: p3_1
+    integer :: i
+    integer :: j
+    integer :: k
+    integer :: idx
+    idx = blockDim%x*(blockIdx%x - 1) + threadIdx%x
+
+    i = mod((global_id_0 - 1) / 10201,101) + 1
+    j = mod((global_id_0 - 1) / 101,101) + 1
+    k = mod(global_id_0 - 1,101) + 1
+    p3_1(global_id_0) = rhs_0(global_id_0)*cn1___sor_map_22_scal + (cn2l___sor_map_22_scal*(p0_0(global_id_0 + 10201) + p0_0(global_id_0 - 10201)) + cn2s___sor_map_22_scal*(p0_0(global_id_0 + 101) + p0_0(global_id_0 - 101)) + cn3l___sor_map_22_scal*(p0_0(global_id_0 + 1) + p0_0(global_id_0 - 1)) + cn3s___sor_map_22_scal*(p0_0(global_id_0 + 10202) + p0_0(global_id_0 - 10202)) + cn4l___sor_map_22_scal*(p0_0(global_id_0 + 102) + p0_0(global_id_0 - 102)) + cn4s___sor_map_22_scal*(p0_0(global_id_0 + 2) + p0_0(global_id_0 - 2)))
+    p3_1(global_id_0) = p0_0(global_id_0) + omega___sor_map_46_scal*(p3_1(global_id_0) - p0_0(global_id_0))
+
+end subroutine stage_kernel_1
+
+end module singleton_module_stage_kernel_1
