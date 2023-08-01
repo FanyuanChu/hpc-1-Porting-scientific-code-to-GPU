@@ -1,3 +1,4 @@
+! sor_superkernel.f95
 module singleton_module_sor_superkernel
 
 contains
