@@ -40,7 +40,9 @@ program main
   integer :: numBlocks
   integer :: n
 
+  !
   real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p3_1_host
+  integer :: index
 
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
@@ -81,7 +83,6 @@ program main
   print *, 'Final result:'
   print *, 'p3_1:', p3_1(1:10)
   ! Calculate the index
-  integer :: index
   index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
   print *, 'Index:', index
   print *, 'Value at index:', p3_1_host(index)
