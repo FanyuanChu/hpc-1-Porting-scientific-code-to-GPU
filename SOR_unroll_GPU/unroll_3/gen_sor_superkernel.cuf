@@ -31,7 +31,7 @@ program main
   real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p3_1_dev
   real, dimension(1:853128) :: p0_0, rhs_0, p3_1
   integer, parameter :: st_stage_kernel_1=1
-  integer :: state_ptr
+  integer, device :: state_ptr_dev
   integer, parameter :: niters=10
   integer :: iter
   integer :: clock_rate
@@ -47,11 +47,11 @@ program main
 
   call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
+  state_ptr_dev = st_stage_kernel_1
   call system_clock(timestamp(0), clock_rate)
-  state_ptr = st_stage_kernel_1
   do iter = 1, niters
     print *, iter
-    call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr)
+    call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr_dev)
   end do
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
