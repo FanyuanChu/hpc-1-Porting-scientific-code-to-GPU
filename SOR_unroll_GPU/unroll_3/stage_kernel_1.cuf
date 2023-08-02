@@ -1,1 +1,11 @@
 ! stage_kernel_1.cuf
+module singleton_module_stage_kernel_1
+contains
+attributes(global) subroutine stage_kernel_1(global_id_0,p0_0,rhs_0,p3_1)
+implicit none
+
+! [code here]
+
+
+end subroutine stage_kernel_1
+end module singleton_module_stage_kernel_1
