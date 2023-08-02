@@ -48,12 +48,14 @@ program main
   call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
 
-  ! Copy data from device to host after initialization
-  real, dimension(n) :: p0_0_host, rhs_0_host
+  ! Allocate memory for host arrays
+  real, dimension(:), allocatable :: p0_0_host, rhs_0_host
+  allocate(p0_0_host(n))
+  allocate(rhs_0_host(n))
+
   p0_0_host = p0_0_dev
   rhs_0_host = rhs_0_dev
 
-  ! Print the first 10 values of p0_0 and rhs_0
   print *, 'After initialization:'
   print *, 'p0_0:', p0_0_host(1:10)
   print *, 'rhs_0:', rhs_0_host(1:10)
@@ -75,4 +77,7 @@ program main
 
 
   print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+  ! to deallocate the memory
+  deallocate(p0_0_host)
+  deallocate(rhs_0_host)
 end program main
