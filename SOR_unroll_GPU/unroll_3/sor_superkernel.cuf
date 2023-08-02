@@ -12,6 +12,9 @@ module singleton_module_sor_superkernel
     integer :: state
     integer, intent(In) :: state_ptr
     integer :: global_id_0
+    !
+    integer :: I
+
     state = state_ptr 
 
     global_id_0 = threadIdx%x + (blockIdx%x - 1) * blockDim%x
