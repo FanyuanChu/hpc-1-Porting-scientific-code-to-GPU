@@ -86,7 +86,7 @@ program main
   print *, 'Final result1-100:'
   print *, 'p3_1:', p3_1(1:100)
   print *, 'Final result:'
-  print *, 'p3_1:', p3_1(8000:9000)
+  print *, 'p3_1:', p3_1(8400:8700)
   print *, 'Final result10000-10100:'
   print *, 'p3_1:', p3_1(10000:10100)
   print *, 'Final result:'
