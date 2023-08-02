@@ -40,6 +40,8 @@ program main
   integer :: numBlocks
   integer :: n
 
+  real, dimension(:), allocatable :: p0_0_host, rhs_0_host
+
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
 
@@ -49,7 +51,7 @@ program main
 
 
   ! Allocate memory for host arrays
-  real, dimension(:), allocatable :: p0_0_host, rhs_0_host
+
   allocate(p0_0_host(n))
   allocate(rhs_0_host(n))
 
