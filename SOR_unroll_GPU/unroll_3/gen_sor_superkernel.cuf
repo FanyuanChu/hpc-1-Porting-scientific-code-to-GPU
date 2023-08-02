@@ -47,6 +47,8 @@ program main
 
   call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
+  p3_1_dev = 0.0
+
   state_ptr_dev = st_stage_kernel_1
   call system_clock(timestamp(0), clock_rate)
   do iter = 1, niters
