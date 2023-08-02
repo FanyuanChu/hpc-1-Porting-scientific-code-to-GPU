@@ -8,8 +8,22 @@ real, allocatable :: host_p0(:,:,:)
 integer :: iter, niters, i, j, k
 integer :: clock_rate
 integer, dimension(0:1) :: timestamp
-integer, dimension(3) :: gridDim, blockDim
+integer, dimension(3) :: gridDim, blockDim, arr_size
 integer :: error
+
+attributes(global) subroutine initialize_arrays(arr, arr_size)
+  integer, value :: arr_size(3)
+  real, dimension(0:arr_size(1),0:arr_size(2),0:arr_size(3)), device :: arr
+  integer :: i, j, k
+
+  i = threadIdx%x + (blockIdx%x-1) * blockDim%x
+  j = threadIdx%y + (blockIdx%y-1) * blockDim%y
+  k = threadIdx%z + (blockIdx%z-1) * blockDim%z
+
+  if (i <= arr_size(1) .and. j <= arr_size(2) .and. k <= arr_size(3)) then
+    arr(i,j,k) = 1.0
+  end if
+end subroutine initialize_arrays
 
 print *, "Starting allocations"
 allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
@@ -56,41 +70,22 @@ end if
 print *, "Allocations completed"
 
 print *, "Starting array initialization"
-do i = 0,im+1
-    print *, "i: ", i
-    do j = 0,jm+1
-        print *, "j: ", j
-        do k = 0,km+1
-            print *, "k: ", k
-            rhs(i,j,k) = 1.0
-            error = cudaDeviceSynchronize()
-            if (error /= cudaSuccess) then
-                print *, "Error setting value for rhs at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
-                stop
-            end if
+blockDim = [16,16,4]
+gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
+arr_size = [im+1, jm+1, km+1]
 
-            p0(i,j,k) = 1.0
-            error = cudaDeviceSynchronize()
-            if (error /= cudaSuccess) then
-                print *, "Error setting value for p0 at (", i, ",", j, ",", k, "): ", cudaGetErrorString(error)
-                stop
-            end if
-        end do
-    end do
-end do
-
+call initialize_arrays<<<gridDim, blockDim>>>(p0, arr_size)
+call initialize_arrays<<<gridDim, blockDim>>>(rhs, arr_size)
 error = cudaDeviceSynchronize()
 if (error /= cudaSuccess) then
     print *, "Error during array initialization: ", cudaGetErrorString(error)
     stop
 end if
-
 print *, "Array initialization completed"
 
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
-blockDim = [16,16,4]
-gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
+
 print *, "Starting the main loop"
 
 do iter = 1,niters
