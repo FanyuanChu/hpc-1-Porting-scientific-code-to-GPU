@@ -14,6 +14,26 @@ module singleton_module_sor_superkernel
     integer :: global_id_0
     state = state_ptr 
 
+    
+  !
+  real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p3_1_host
+  integer :: index
+
+  ! Allocate memory for host arrays
+  !
+  allocate(p0_0_host(n))
+  allocate(rhs_0_host(n))
+  allocate(p3_1_host(n))
+
+  p0_0_host = p0_0
+  rhs_0_host = rhs_0
+
+  print *, 'After initialization:'
+  print *, 'p0_0:', p0_0_host(20000:20100)
+  print *, 'rhs_0:', rhs_0_host(20000:20100)
+  !
+
+
     global_id_0 = threadIdx%x + (blockIdx%x - 1) * blockDim%x
 
     select case(state)
