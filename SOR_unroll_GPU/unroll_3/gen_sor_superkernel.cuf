@@ -62,8 +62,8 @@ program main
   rhs_0_host = rhs_0_dev
 
   print *, 'After initialization:'
-  print *, 'p0_0:', p0_0_host(1:10)
-  print *, 'rhs_0:', rhs_0_host(1:10)
+  print *, 'p0_0:', p0_0_host(20000:20100)
+  print *, 'rhs_0:', rhs_0_host(20000:20100)
   !
   
   state_ptr_dev = st_stage_kernel_1
