@@ -86,7 +86,7 @@ program main
   print *, 'Final result:'
   print *, 'p3_1:', p3_1(1:100)
   print *, 'Final result:'
-  print *, 'p3_1:', p3_1(1000:1100)
+  print *, 'p3_1:', p3_1(10000:10100)
   print *, 'Final result:'
   print *, 'p3_1:', p3_1(20000:20100)
   ! Calculate the index
