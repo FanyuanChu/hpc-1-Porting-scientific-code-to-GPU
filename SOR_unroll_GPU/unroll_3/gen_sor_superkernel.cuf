@@ -1,7 +1,25 @@
 ! gen_sor_superkernel.cuf
+module initialization_module
+  use cudafor
+  contains
+  attributes(global) subroutine init_kernel(p0_0, rhs_0, n)
+    implicit none
+    integer :: i
+    real, dimension(:), device :: p0_0, rhs_0
+    integer, value :: n
+
+    i = threadIdx%x + (blockIdx%x - 1) * blockDim%x
+    if (i <= n) then
+      p0_0(i) = 1.0
+      rhs_0(i) = 1.0
+    end if
+  end subroutine init_kernel
+end module initialization_module
+
 program main
   use cudafor
   use singleton_module_sor_superkernel, only : sor_superkernel
+  use initialization_module, only : init_kernel
   implicit none
   integer, parameter :: im=100
   integer, parameter :: jm=100
@@ -9,21 +27,24 @@ program main
   integer :: i
   integer :: j
   integer :: k
-  real, dimension(1:853128), device :: p0_0
-  real, dimension(1:853128), device :: rhs_0
-  real, dimension(1:853128), device :: p3_1
-  real, dimension(1:853128) :: p0_0_host
+  integer :: global_id_0
+  real, dimension(1:853128) :: p0_0
+  real, dimension(1:853128) :: rhs_0
+  real, dimension(1:853128) :: p3_1
   integer, parameter :: st_stage_kernel_1=1
-  integer, device :: state_ptr
-  integer, parameter :: niters=10 !300
+  integer :: state_ptr
+  integer, parameter :: niters=10
   integer :: iter
   integer :: clock_rate
   integer, dimension(0:1) :: timestamp
+  integer, parameter :: blockSize = 256
+  integer :: numBlocks
+  integer :: n
 
-  do i = 1,(im+1)*(jm+1)*(km+1)
-    rhs_0(i) = 1.0
-    p0_0(i) = 1.0
-  end do
+  n = (im+1)*(jm+1)*(km+1)
+  numBlocks = (n + blockSize - 1) / blockSize
+
+  call init_kernel<<<numBlocks, blockSize>>>(p0_0, rhs_0, n)
 
   call system_clock(timestamp(0), clock_rate)
   state_ptr = st_stage_kernel_1
@@ -33,7 +54,5 @@ program main
   end do
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-  p0_0_host = p0_0
-  print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+  print *, p0_0((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
-
