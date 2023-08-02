@@ -16,7 +16,7 @@ module singleton_module_sor_superkernel
 
     global_id_0 = threadIdx%x + (blockIdx%x - 1) * blockDim%x
 
-    if (global_id_0 == 1) then
+    if (global_id_0 == 30000) then
     do i = 20000, 20100
       print *, 'p0_0(', i, ') = ', p0_0(i)
     end do
