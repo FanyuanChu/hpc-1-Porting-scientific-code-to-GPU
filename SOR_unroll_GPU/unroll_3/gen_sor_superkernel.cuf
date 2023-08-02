@@ -9,7 +9,6 @@ program main
   integer :: i
   integer :: j
   integer :: k
-  integer :: global_id_0
   real, dimension(1:853128) :: p0_0
   real, dimension(1:853128) :: rhs_0
   real, dimension(1:853128) :: p3_1
