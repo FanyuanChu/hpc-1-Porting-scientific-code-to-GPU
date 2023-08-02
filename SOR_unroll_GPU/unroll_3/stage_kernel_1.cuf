@@ -82,6 +82,16 @@ attributes(device) subroutine stage_kernel_1(global_id_0,p0_0,rhs_0,p3_1)
  integer :: global_id_0
  integer :: idx
  idx = global_id_0
+
+  !
+  integer :: cfy
+
+  if (global_id_0 == 30000) then
+    do i = 20000, 20100
+      print *, 'p0_0(', i, ') = ', p0_0(i)
+    end do
+  end if
+
 !RF4A Begin Inline
  do s_idx_1 = 1,9
  do s_idx_2 = 1,9
