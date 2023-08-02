@@ -8,63 +8,63 @@ real, allocatable :: host_p0(:,:,:)
 integer :: iter, niters, i, j, k
 integer :: clock_rate
 integer, dimension(0:1) :: timestamp
-integer, dimension(3) :: gridDim, blockDim, arr_size
+integer, dimension(3) :: gridDim, blockDim
 integer :: error
 
-attributes(global) subroutine initialize_arrays(arr, arr_size)
-  integer, value :: arr_size(3)
-  real, dimension(0:arr_size(1),0:arr_size(2),0:arr_size(3)), device :: arr
+attributes(global) subroutine initialize_arrays(arr, im, jm, km)
+  integer, value :: im, jm, km
+  real, dimension(0:im,0:jm,0:km), device :: arr
   integer :: i, j, k
 
   i = threadIdx%x + (blockIdx%x-1) * blockDim%x
   j = threadIdx%y + (blockIdx%y-1) * blockDim%y
   k = threadIdx%z + (blockIdx%z-1) * blockDim%z
 
-  if (i <= arr_size(1) .and. j <= arr_size(2) .and. k <= arr_size(3)) then
+  if (i <= im .and. j <= jm .and. k <= km) then
     arr(i,j,k) = 1.0
   end if
 end subroutine initialize_arrays
 
 print *, "Starting allocations"
 allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for p0 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for p0 with error:", error
     stop
 end if
 
 allocate(p1(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for p1 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for p1 with error:", error
     stop
 end if
 
 allocate(rhs(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for rhs with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for rhs with error:", error
     stop
 end if
 
 allocate(p2(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for p2 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for p2 with error:", error
     stop
 end if
 
 allocate(p3(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for p3 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for p3 with error:", error
     stop
 end if
 
 allocate(p4(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for p4 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for p4 with error:", error
     stop
 end if
 
 allocate(host_p0(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= cudaSuccess) then
-    print *, "Memory allocation failed for host_p0 with error:", cudaGetErrorString(error)
+if (error /= 0) then
+    print *, "Memory allocation failed for host_p0 with error:", error
     stop
 end if
 print *, "Allocations completed"
@@ -72,10 +72,9 @@ print *, "Allocations completed"
 print *, "Starting array initialization"
 blockDim = [16,16,4]
 gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
-arr_size = [im+1, jm+1, km+1]
 
-call initialize_arrays<<<gridDim, blockDim>>>(p0, arr_size)
-call initialize_arrays<<<gridDim, blockDim>>>(rhs, arr_size)
+call initialize_arrays<<<gridDim, blockDim>>>(p0, im+1, jm+1, km+1)
+call initialize_arrays<<<gridDim, blockDim>>>(rhs, im+1, jm+1, km+1)
 error = cudaDeviceSynchronize()
 if (error /= cudaSuccess) then
     print *, "Error during array initialization: ", cudaGetErrorString(error)
