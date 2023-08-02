@@ -1,140 +1,120 @@
 ! gen_sor_superkernel.cuf
-program test_sor_unroll
-use cudafor
-use sor_params
-use sor_routines
-real, allocatable, device :: p0(:,:,:), p1(:,:,:), rhs(:,:,:), p2(:,:,:), p3(:,:,:), p4(:,:,:)
-real, allocatable :: host_p0(:,:,:)
-integer :: iter, niters, i, j, k
-integer :: clock_rate
-integer, dimension(0:1) :: timestamp
-integer, dimension(3) :: gridDim, blockDim
-integer :: error
+module initialization_module
+  use cudafor
+  contains
+  attributes(global) subroutine init_kernel(p0_0, rhs_0, n)
+    implicit none
+    integer :: i
+    real, dimension(:), device :: p0_0, rhs_0
+    integer, value :: n
 
-attributes(global) subroutine initialize_arrays(arr, im, jm, km)
-  integer, value :: im, jm, km
-  real, dimension(0:im,0:jm,0:km), device :: arr
-  integer :: i, j, k
-
-  i = threadIdx%x + (blockIdx%x-1) * blockDim%x
-  j = threadIdx%y + (blockIdx%y-1) * blockDim%y
-  k = threadIdx%z + (blockIdx%z-1) * blockDim%z
-
-  if (i <= im .and. j <= jm .and. k <= km) then
-    arr(i,j,k) = 1.0
-  end if
-end subroutine initialize_arrays
-
-print *, "Starting allocations"
-allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for p0 with error:", error
-    stop
-end if
-
-allocate(p1(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for p1 with error:", error
-    stop
-end if
-
-allocate(rhs(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for rhs with error:", error
-    stop
-end if
-
-allocate(p2(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for p2 with error:", error
-    stop
-end if
-
-allocate(p3(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for p3 with error:", error
-    stop
-end if
-
-allocate(p4(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for p4 with error:", error
-    stop
-end if
-
-allocate(host_p0(0:im+1,0:jm+1,0:km+1),stat=error)
-if (error /= 0) then
-    print *, "Memory allocation failed for host_p0 with error:", error
-    stop
-end if
-print *, "Allocations completed"
-
-print *, "Starting array initialization"
-blockDim = [16,16,4]
-gridDim = [(im+2+blockDim(1)-1)/blockDim(1), (jm+2+blockDim(2)-1)/blockDim(2), (km+2+blockDim(3)-1)/blockDim(3)]
-
-call initialize_arrays<<<gridDim, blockDim>>>(p0, im+1, jm+1, km+1)
-call initialize_arrays<<<gridDim, blockDim>>>(rhs, im+1, jm+1, km+1)
-error = cudaDeviceSynchronize()
-if (error /= cudaSuccess) then
-    print *, "Error during array initialization: ", cudaGetErrorString(error)
-    stop
-end if
-print *, "Array initialization completed"
-
-niters = 12/4
-call system_clock(timestamp(0), clock_rate)
-
-print *, "Starting the main loop"
-
-do iter = 1,niters
-    print *, "Iteration: ", iter
-    call sor<<<gridDim, blockDim>>>(p0,p1,rhs,gridDim,blockDim)
-    error = cudaDeviceSynchronize()
-    if (error /= cudaSuccess) then
-        print *, "First call to sor failed with error: ", cudaGetErrorString(error)
-        stop
+    i = threadIdx%x + (blockIdx%x - 1) * blockDim%x
+    if (i <= n) then
+      p0_0(i) = 1.0
+      rhs_0(i) = 1.0
     end if
+  end subroutine init_kernel
+end module initialization_module
 
-    call sor<<<gridDim, blockDim>>>(p1,p2,rhs,gridDim,blockDim)
-    error = cudaDeviceSynchronize()
-    if (error /= cudaSuccess) then
-        print *, "Second call to sor failed with error: ", cudaGetErrorString(error)
-        stop
-    end if
+program main
+  use cudafor
+  use singleton_module_sor_superkernel, only : sor_superkernel
+  use initialization_module, only : init_kernel
+  implicit none
+  integer, parameter :: im=100
+  integer, parameter :: jm=100
+  integer, parameter :: km=80
+  integer :: i
+  integer :: j
+  integer :: k
+  integer :: global_id_0
+  real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p3_1_dev
+  real, dimension(1:853128) :: p0_0, rhs_0, p3_1
+  integer, parameter :: st_stage_kernel_1=1
+  integer, device :: state_ptr_dev
+  integer, parameter :: niters=10
+  integer :: iter
+  integer :: clock_rate
+  integer, dimension(0:1) :: timestamp
+  integer, parameter :: blockSize = 256
+  integer :: numBlocks
+  integer :: n
 
-    call sor<<<gridDim, blockDim>>>(p2,p3,rhs,gridDim,blockDim)
-    error = cudaDeviceSynchronize()
-    if (error /= cudaSuccess) then
-        print *, "Third call to sor failed with error: ", cudaGetErrorString(error)
-        stop
-    end if
+  !
+  real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p3_1_host
+  integer :: index
 
-    call sor<<<gridDim, blockDim>>>(p3,p4,rhs,gridDim,blockDim)
-    error = cudaDeviceSynchronize()
-    if (error /= cudaSuccess) then
-        print *, "Fourth call to sor failed with error: ", cudaGetErrorString(error)
-        stop
-    end if
+  n = (im+1)*(jm+1)*(km+1)
+  numBlocks = (n + blockSize - 1) / blockSize
 
-    if (size(p0) == size(p4)) then
-        p0 = p4
-    else
-        print *, 'Size mismatch between p0 and p4'
-    end if
-end do
+  allocate(p0_0_dev(n), rhs_0_dev(n), p3_1_dev(n))
 
-print *, "Main loop completed"
-call system_clock(timestamp(1), clock_rate)
-host_p0 = p0
-print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-print *, "Result: ", host_p0(im/2,jm/2,km/2)
+  call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
-deallocate(p0)
-deallocate(p1)
-deallocate(rhs)
-deallocate(p2)
-deallocate(p3)
-deallocate(p4)
-deallocate(host_p0)
-end program
+
+  ! Allocate memory for host arrays
+  !
+  allocate(p0_0_host(n))
+  allocate(rhs_0_host(n))
+  allocate(p3_1_host(n))
+
+  p0_0_host = p0_0_dev
+  rhs_0_host = rhs_0_dev
+
+  print *, 'After initialization:'
+  print *, 'p0_0:', p0_0_host(1:10)
+  print *, 'rhs_0:', rhs_0_host(1:10)
+  !
+  
+  state_ptr_dev = st_stage_kernel_1
+  call system_clock(timestamp(0), clock_rate)
+  do iter = 1, niters
+    print *, iter
+    call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr_dev)
+  end do
+  call system_clock(timestamp(1), clock_rate)
+  print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
+  p3_1 = p3_1_dev
+
+
+
+  p3_1_host = p3_1_dev  ! Copy data from device to host after computation
+  ! Print the first 10 values of p3_1
+  print *, 'Final result:'
+  print *, 'p3_1:', p3_1(1:10)
+  ! Calculate the index
+  index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
+  print *, 'Index:', index
+  print *, 'Value at index:', p3_1_host(index)
+
+  print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+
+  ! to deallocate the memory
+  deallocate(p0_0_host)
+  deallocate(rhs_0_host)
+  deallocate(p3_1_host)
+end program main                                                                                                                                                             
+   ! sor_superkernel.cuf
+module singleton_module_sor_superkernel
+  use cudafor
+  contains
+  attributes(global) subroutine sor_superkernel(p0_0, rhs_0, p3_1, state_ptr)
+    use singleton_module_stage_kernel_1, only: stage_kernel_1
+    implicit none
+    real, dimension(1:*), device, intent(in) :: p0_0
+    real, dimension(1:*), device, intent(in) :: rhs_0
+    real, dimension(1:*), device, intent(out) :: p3_1
+    integer, parameter :: st_stage_kernel_1=1
+    integer :: state
+    integer, intent(In) :: state_ptr
+    integer :: global_id_0
+    state = state_ptr 
+
+    global_id_0 = threadIdx%x + (blockIdx%x - 1) * blockDim%x
+
+    select case(state)
+      case (st_stage_kernel_1)
+        call stage_kernel_1(global_id_0, p0_0, rhs_0, p3_1)
+    end select
+  end subroutine sor_superkernel
+end module singleton_module_sor_superkernel
