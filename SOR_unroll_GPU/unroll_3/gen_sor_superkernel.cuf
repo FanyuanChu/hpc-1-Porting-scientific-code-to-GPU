@@ -28,9 +28,8 @@ program main
   integer :: j
   integer :: k
   integer :: global_id_0
-  real, dimension(1:853128) :: p0_0
-  real, dimension(1:853128) :: rhs_0
-  real, dimension(1:853128) :: p3_1
+  real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p3_1_dev
+  real, dimension(1:853128) :: p0_0, rhs_0, p3_1
   integer, parameter :: st_stage_kernel_1=1
   integer :: state_ptr
   integer, parameter :: niters=10
@@ -44,15 +43,22 @@ program main
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
 
-  call init_kernel<<<numBlocks, blockSize>>>(p0_0, rhs_0, n)
+  allocate(p0_0_dev(n), rhs_0_dev(n), p3_1_dev(n))
+
+  call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
   call system_clock(timestamp(0), clock_rate)
   state_ptr = st_stage_kernel_1
   do iter = 1, niters
     print *, iter
+    p0_0 = p0_0_dev
+    rhs_0 = rhs_0_dev
     call sor_superkernel<<<853128, 1>>>(p0_0, rhs_0, p3_1, state_ptr)
+    p3_1_dev = p3_1
   end do
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-  print *, p0_0((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+  p3_1 = p3_1_dev
+  print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
+
