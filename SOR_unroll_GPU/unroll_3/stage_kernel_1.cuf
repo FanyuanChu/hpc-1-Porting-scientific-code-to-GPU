@@ -89,8 +89,8 @@ attributes(device) subroutine stage_kernel_1(global_id_0,p0_0,rhs_0,p3_1)
  
 
   if (global_id_0 == 30000) then
-    do i = 20000, 20100
-      print *, 'p0_0(', i, ') = ', p0_0(i)
+    do cfy = 20000, 20100
+      print *, 'p0_0(', cfy, ') = ', p0_0(cfy)
     end do
   end if
 
