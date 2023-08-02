@@ -1,3 +1,4 @@
+! gen_sor_superkernel.cuf
 module initialization_module
   use cudafor
   contains
