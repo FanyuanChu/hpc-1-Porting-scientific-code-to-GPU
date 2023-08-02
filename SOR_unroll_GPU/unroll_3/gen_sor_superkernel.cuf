@@ -58,6 +58,6 @@ program main
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
   allocate(p0_0_host(n))
-  status = cudaMemcpy(p0_0_host, p0_0_dev, n*sizeof(real), cudaMemcpyDeviceToHost)
+  status = cudaMemcpy(p0_0_host, p0_0_dev, n*storage_size(real)/8, cudaMemcpyDeviceToHost)
   print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
