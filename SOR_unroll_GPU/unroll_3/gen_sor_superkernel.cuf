@@ -47,6 +47,18 @@ program main
 
   call init_kernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, n)
 
+
+  ! Copy data from device to host after initialization
+  real, dimension(n) :: p0_0_host, rhs_0_host
+  p0_0_host = p0_0_dev
+  rhs_0_host = rhs_0_dev
+
+  ! Print the first 10 values of p0_0 and rhs_0
+  print *, 'After initialization:'
+  print *, 'p0_0:', p0_0_host(1:10)
+  print *, 'rhs_0:', rhs_0_host(1:10)
+
+
   state_ptr_dev = st_stage_kernel_1
   call system_clock(timestamp(0), clock_rate)
   do iter = 1, niters
@@ -56,5 +68,11 @@ program main
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
   p3_1 = p3_1_dev
+
+  ! Print the first 10 values of p3_1
+  print *, 'Final result:'
+  print *, 'p3_1:', p3_1(1:10)
+
+
   print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
