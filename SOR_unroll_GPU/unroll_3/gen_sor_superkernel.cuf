@@ -38,7 +38,7 @@ state_ptr = st_stage_kernel_1
 do iter = 1, niters
 print *, iter
 do global_id_0 = 1, 853128
-  call sor_superkernel<<<853128,1>>>(global_id_0, p0_0_d, rhs_0_d, p3_1_d,state_ptr)
+  call sor_superkernel<<<1700,512>>>(global_id_0, p0_0_d, rhs_0_d, p3_1_d,state_ptr)
 end do
 end do
 call system_clock(timestamp(1), clock_rate)
