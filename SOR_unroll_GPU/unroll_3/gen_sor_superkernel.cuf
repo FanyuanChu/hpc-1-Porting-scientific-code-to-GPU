@@ -65,6 +65,9 @@ program main
   print *, 'p0_0:', p0_0_host(20000:20100)
   print *, 'rhs_0:', rhs_0_host(20000:20100)
   !
+
+  p0_0_dev = p0_0_dev
+  rhs_0_dev = rhs_0_dev
   
   state_ptr_dev = st_stage_kernel_1
   call system_clock(timestamp(0), clock_rate)
