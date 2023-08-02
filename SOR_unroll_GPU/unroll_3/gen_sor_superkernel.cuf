@@ -1,36 +1,49 @@
 ! gen_sor_superkernel.cuf
 program main
-  use cudafor
-  use singleton_module_sor_superkernel, only : sor_superkernel
-  implicit none
-  integer, parameter :: im=100, jm=100, km=80
-  integer :: i, j, k, global_id_0
-  real, dimension(1:853128) :: p0_0, rhs_0, p3_1
-  real, device, dimension(1:853128) :: dev_p0_0, dev_rhs_0, dev_p3_1
-  integer, parameter :: st_stage_kernel_1=1
-  integer :: state_ptr, niters=10, iter
+use cudafor
+use singleton_module_sor_superkernel, only : sor_superkernel
+implicit none
+integer, parameter :: im=100
+integer, parameter :: jm=100
+integer, parameter :: km=80
+integer :: i
+integer :: j
+integer :: k
+integer :: global_id_0
+real, dimension(1:853128) :: p0_0
+real, dimension(1:853128) :: rhs_0
+real, dimension(1:853128) :: p3_1
+integer, parameter :: st_stage_kernel_1=1
+integer :: state_ptr
+integer, parameter :: niters=10 !300
+integer :: iter
+integer :: clock_rate
+integer, dimension(0:1) :: timestamp
+! Memory allocation on GPU
+real, device, dimension(1:853128) :: p0_0_d
+real, device, dimension(1:853128) :: rhs_0_d
+real, device, dimension(1:853128) :: p3_1_d
 
-  do i = 1,(im+1)*(jm+1)*(km+1)
+do i = 1,(im+1)*(jm+1)*(km+1)
     rhs_0(i) = 1.0
     p0_0(i) = 1.0
-  end do
+end do
+! Copy data from CPU to GPU
+p0_0_d = p0_0
+rhs_0_d = rhs_0
 
-  state_ptr = st_stage_kernel_1
-
-  ! Copy data to device memory
-  dev_p0_0 = p0_0
-  dev_rhs_0 = rhs_0
-
-  do iter = 1, niters
-    print *, iter
-
-    do global_id_0 = 1, 853128
-      call sor_superkernel<<<dim3(1024),dim3(128)>>>(global_id_0, dev_p0_0, dev_rhs_0, dev_p3_1, state_ptr)
-    end do
-    cudaDeviceSynchronize()
-  end do
-
-  ! Copy data back to host memory
-  p0_0 = dev_p0_0
-  print *, p0_0((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
-end program main
+call system_clock(timestamp(0), clock_rate)
+! Loops over stage calls
+state_ptr = st_stage_kernel_1
+do iter = 1, niters
+print *, iter
+do global_id_0 = 1, 853128
+  call sor_superkernel<<<853128,1>>>(global_id_0, p0_0_d, rhs_0_d, p3_1_d,state_ptr)
+end do
+end do
+call system_clock(timestamp(1), clock_rate)
+print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
+! Copy result from GPU to CPU
+p3_1 = p3_1_d
+print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+end program main  
