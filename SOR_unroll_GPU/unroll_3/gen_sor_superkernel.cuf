@@ -1,4 +1,5 @@
 ! gen_sor_superkernel.cuf
+! gen_sor_superkernel.cuf
 module initialization_module
   use cudafor
   contains
@@ -18,7 +19,6 @@ end module initialization_module
 
 program main
   use cudafor
-  use iso_c_binding, only : c_sizeof
   use singleton_module_sor_superkernel, only : sor_superkernel
   use initialization_module, only : init_kernel
   implicit none
@@ -40,7 +40,6 @@ program main
   integer, parameter :: blockSize = 256
   integer :: numBlocks
   integer :: n
-  integer :: status
 
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
@@ -57,9 +56,6 @@ program main
   end do
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-
-  ! Copy the results from device to host
-  status = cudaMemcpy(p3_1, p3_1_dev, size(p3_1)*c_sizeof(p3_1(1)), cudaMemcpyDeviceToHost)
-
+  p3_1 = p3_1_dev
   print *, p3_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
