@@ -1,7 +1,30 @@
+module initialization_routines
+  use cudafor
+  implicit none
+
+  contains
+
+  attributes(global) subroutine initialize_arrays(arr, im, jm, km)
+    integer, value :: im, jm, km
+    real, dimension(0:im,0:jm,0:km), device :: arr
+    integer :: i, j, k
+
+    i = threadIdx%x + (blockIdx%x-1) * blockDim%x
+    j = threadIdx%y + (blockIdx%y-1) * blockDim%y
+    k = threadIdx%z + (blockIdx%z-1) * blockDim%z
+
+    if (i <= im .and. j <= jm .and. k <= km) then
+      arr(i,j,k) = 1.0
+    end if
+  end subroutine initialize_arrays
+end module initialization_routines
+
+
 program test_sor_unroll
 use cudafor
 use sor_params
 use sor_routines
+use initialization_routines
 real, allocatable, device :: p0(:,:,:), p1(:,:,:), rhs(:,:,:), p2(:,:,:), p3(:,:,:), p4(:,:,:)
 real, allocatable :: host_p0(:,:,:)
 integer :: iter, niters, i, j, k
@@ -9,20 +32,6 @@ integer :: clock_rate
 integer, dimension(0:1) :: timestamp
 integer, dimension(3) :: gridDim, blockDim
 integer :: error
-
-attributes(global) subroutine initialize_arrays(arr, im, jm, km)
-  integer, value :: im, jm, km
-  real, dimension(0:im,0:jm,0:km), device :: arr
-  integer :: i, j, k
-
-  i = threadIdx%x + (blockIdx%x-1) * blockDim%x
-  j = threadIdx%y + (blockIdx%y-1) * blockDim%y
-  k = threadIdx%z + (blockIdx%z-1) * blockDim%z
-
-  if (i <= im .and. j <= jm .and. k <= km) then
-    arr(i,j,k) = 1.0
-  end if
-end subroutine initialize_arrays
 
 print *, "Starting allocations"
 allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
