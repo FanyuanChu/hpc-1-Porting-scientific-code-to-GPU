@@ -12,6 +12,7 @@ program main
   real, dimension(1:853128), device :: p0_0
   real, dimension(1:853128), device :: rhs_0
   real, dimension(1:853128), device :: p3_1
+  real, dimension(1:853128) :: p0_0_host
   integer, parameter :: st_stage_kernel_1=1
   integer, device :: state_ptr
   integer, parameter :: niters=10 !300
@@ -32,6 +33,7 @@ program main
   end do
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-  print *, p0_0((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+  p0_0_host = p0_0
+  print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
 
