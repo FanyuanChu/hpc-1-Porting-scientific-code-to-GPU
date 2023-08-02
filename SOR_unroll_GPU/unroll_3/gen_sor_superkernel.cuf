@@ -40,6 +40,7 @@ program main
   integer, parameter :: blockSize = 256
   integer :: numBlocks
   integer :: n
+  integer :: status
 
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
@@ -57,6 +58,6 @@ program main
   call system_clock(timestamp(1), clock_rate)
   print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
   allocate(p0_0_host(n))
-  status = cudaMemcpy(p0_0_host, p0_0_dev, n*size(real), cudaMemcpyDeviceToHost)
+  status = cudaMemcpy(p0_0_host, p0_0_dev, n*sizeof(real), cudaMemcpyDeviceToHost)
   print *, p0_0_host((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
 end program main
