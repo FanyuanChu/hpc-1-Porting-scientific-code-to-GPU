@@ -1,3 +1,4 @@
+! gen_sor_superkernel.cuf
 program main
   use cudafor
   use singleton_module_sor_superkernel, only : sor_superkernel
