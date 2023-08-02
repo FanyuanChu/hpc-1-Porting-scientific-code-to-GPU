@@ -61,9 +61,9 @@ program main
   p0_0_host = p0_0_dev
   rhs_0_host = rhs_0_dev
 
-  print *, 'After initialization:'
-  print *, 'p0_0:', p0_0_host(20000:20100)
-  print *, 'rhs_0:', rhs_0_host(20000:20100)
+  !print *, 'After initialization:'
+  !print *, 'p0_0:', p0_0_host(20000:20100)
+  !print *, 'rhs_0:', rhs_0_host(20000:20100)
   !
 
   p0_0_dev = p0_0_dev
