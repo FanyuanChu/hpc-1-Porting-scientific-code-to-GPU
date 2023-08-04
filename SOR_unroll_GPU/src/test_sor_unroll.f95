@@ -27,7 +27,7 @@
 ! user	0m7.965s
 ! sys	0m0.016s
 
-
+! test_sor_unroll.f95
 program test_sor_unroll
 #ifdef WITH_OPENMP
 use omp_lib
