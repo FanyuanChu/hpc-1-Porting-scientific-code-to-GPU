@@ -137,6 +137,10 @@ call system_clock(timestamp(1), clock_rate)
 host_p0 = p0
 print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
 print *, "Result: ", host_p0(im/2,jm/2,km/2)
+print *, "Result: ", host_p0(2000)
+print *, "Result: ", host_p0(im/2,jm/2,km/2)
+print *, "Result: ", host_p0(im/2,jm/2,km/2)
+
 
 deallocate(p0)
 deallocate(p1)
