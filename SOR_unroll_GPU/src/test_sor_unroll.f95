@@ -1,5 +1,4 @@
 ! test_sor_unroll.f95 second
-! test_sor_unroll.f95
 program test_sor_unroll
 use cudafor
 use sor_params
