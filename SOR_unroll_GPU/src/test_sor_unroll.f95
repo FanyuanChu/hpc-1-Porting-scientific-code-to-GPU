@@ -9,6 +9,7 @@ real, device, allocatable  :: p0(:,:,:), p1(:,:,:), p2(:,:,:), p3(:,:,:), p4(:,:
 integer :: iter, niters
 integer :: i,j,k
 real :: start_time, end_time
+real :: sample
 
 allocate(p0(0:im+1,0:jm+1,0:km+1))
 allocate(p1(0:im+1,0:jm+1,0:km+1))
@@ -39,7 +40,7 @@ end do
 end_time = rtc()
 
 ! Printing a sample value
-real :: sample
+
 sample = p0(im/2,jm/2,km/2)
 print *, sample
 print *, "Time elapsed: ", end_time - start_time, " seconds."
