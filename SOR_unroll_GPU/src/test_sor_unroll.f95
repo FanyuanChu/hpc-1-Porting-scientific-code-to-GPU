@@ -11,6 +11,7 @@ program test_sor_unroll
   real :: elapsed_time
   type (cudaEvent) :: start_event, stop_event
   integer :: istat
+  real :: sample_device, sample_host
 
   ! Allocate device memory
   allocate(p0(0:im+1,0:jm+1,0:km+1))
@@ -48,6 +49,10 @@ program test_sor_unroll
     p0 = p4
   end do
 
+  ! Get a sample value from the device
+  sample_device = p0(im/2,jm/2,km/2)
+  sample_host = sample_device  ! Copy the value to the host
+
   ! Record the stop time
   istat = cudaEventRecord(stop_event, 0)
   istat = cudaEventSynchronize(stop_event)
@@ -56,7 +61,7 @@ program test_sor_unroll
   istat = cudaEventElapsedTime(elapsed_time, start_event, stop_event)
 
   ! Printing a sample value
-  print *, p0(im/2,jm/2,km/2)
+  print *, sample_host
   print *, "Time elapsed: ", elapsed_time / 1000.0, " seconds."
 
   ! Deallocate device memory
