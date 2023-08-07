@@ -33,6 +33,9 @@ integer, dimension(0:1) :: timestamp
 integer, dimension(3) :: gridDim, blockDim
 integer :: error
 
+allocate(host_p9(0:im+1,0:jm+1,0:km+1))
+allocate(host_rhs9(0:im+1,0:jm+1,0:km+1))
+
 print *, "Starting allocations"
 allocate(p0(0:im+1,0:jm+1,0:km+1),stat=error)
 if (error /= 0) then
@@ -90,6 +93,20 @@ if (error /= cudaSuccess) then
 end if
 print *, "Array initialization completed"
 
+real, allocatable :: host_p0(:,:,:)
+real, allocatable :: host_rhs(:,:,:)
+
+
+
+host_p9 = p0
+host_rhs9 = rhs
+
+print *, "Value of p0 at specific index: ", host_9(some_i, some_j, some_k)
+print *, "Value of rhs at specific index: ", host_rhs9(some_i, some_j, some_k)
+
+
+
+
 niters = 12/4
 call system_clock(timestamp(0), clock_rate)
 
@@ -146,4 +163,7 @@ deallocate(p2)
 deallocate(p3)
 deallocate(p4)
 deallocate(host_p0)
+
+deallocate(host_p9)
+deallocate(host_rhs9)
 end program
