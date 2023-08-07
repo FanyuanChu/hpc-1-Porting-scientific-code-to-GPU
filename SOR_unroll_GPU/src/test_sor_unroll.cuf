@@ -33,6 +33,7 @@ integer, dimension(0:1) :: timestamp
 integer, dimension(3) :: gridDim, blockDim
 integer :: error
 
+real, allocatable :: host_p9(:,:,:), host_rhs9(:,:,:)
 allocate(host_p9(0:im+1,0:jm+1,0:km+1))
 allocate(host_rhs9(0:im+1,0:jm+1,0:km+1))
 
