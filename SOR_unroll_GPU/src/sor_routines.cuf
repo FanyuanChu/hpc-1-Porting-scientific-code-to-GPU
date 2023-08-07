@@ -22,6 +22,10 @@ attributes(global) subroutine sor_kernel(p0,p1,rhs,im,jm,km)
     i = blockIdx%x*blockDim%x + threadIdx%x
     j = blockIdx%y*blockDim%y + threadIdx%y
     k = blockIdx%z*blockDim%z + threadIdx%z
+    if (i == 1 .and. j == 2 .and. k == 3) then
+    print *, "Value of p0 at (", i, ",", j, ",", k, "): ", p0(i, j, k)
+    print *, "Value of rhs at (", i, ",", j, ",", k, "): ", rhs(i, j, k)
+end if
 
     if (i <= im+1 .and. j <= jm+1 .and. k <= km+1) then
         ! assume i=x =  west to east , y=j=south to north, k=z = vertical
