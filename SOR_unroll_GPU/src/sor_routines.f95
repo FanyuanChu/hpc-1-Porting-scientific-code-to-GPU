@@ -1,4 +1,3 @@
-! sor_routines.f95
 module sor_routines
     use sor_params
     use cudafor
@@ -26,8 +25,20 @@ attributes(global) subroutine sor_kernel(p0, p1, rhs)
     k = blockIdx%z * blockDim%z + threadIdx%z
 
     if (i <= im+1 .and. j <= jm+1 .and. k <= km+1) then
-        ! Same logic as in the original sor_kernel code goes here
-        ! ...
+        if (i == im+1) then
+            p1(i,j,k) = p0(i-im,j,k)
+        else if (i == 0) then
+            p1(i,j,k) = p0(i+im,j,k)
+        else if (j == jm+1) then
+            p1(i,j,k) = p0(i-1,j,k)
+        else if (j == 0) then
+            p1(i,j,k) = p0(i,j,k)
+        else if (k == 0 .or. k == km+1) then
+            p1(i,j,k) = p0(i,j,k)
+        else
+            reltmp = omega * (cn1 * (cn2l * p0(i+1,j,k) + cn2s * p0(i-1,j,k) + cn3l * p0(i,j+1,k) + cn3s * p0(i,j-1,k) + cn4l * p0(i,j,k+1) + cn4s * p0(i,j,k-1) - rhs(i,j,k)) - p0(i,j,k))
+            p1(i,j,k) = p0(i,j,k) + reltmp
+        end if
     end if
 end subroutine sor_kernel
 
