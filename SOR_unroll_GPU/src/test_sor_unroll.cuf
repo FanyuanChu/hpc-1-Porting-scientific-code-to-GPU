@@ -98,7 +98,7 @@ print *, "Array initialization completed"
 host_p9 = p0
 host_rhs9 = rhs
 
-print *, "Value of p0 at specific index: ", host_9(6, 9, 10)
+print *, "Value of p0 at specific index: ", host_p9(6, 9, 10)
 print *, "Value of rhs at specific index: ", host_rhs9(6, 9, 10)
 
 
