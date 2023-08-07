@@ -138,14 +138,6 @@ host_p0 = p0
 print '(f8.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
 print *, "Result: ", host_p0(im/2,jm/2,km/2)
 
-print *, "Printing specified range of values"
-do i = 1, 5
-    do j = 1, 5
-        do k = 1, 5
-            print *, "Value at index (", i, ",", j, ",", k, "): ", host_p0(i,j,k)
-        end do
-    end do
-end do
 
 deallocate(p0)
 deallocate(p1)
