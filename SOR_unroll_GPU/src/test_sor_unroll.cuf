@@ -101,8 +101,8 @@ real, allocatable :: host_rhs(:,:,:)
 host_p9 = p0
 host_rhs9 = rhs
 
-print *, "Value of p0 at specific index: ", host_9(some_i, some_j, some_k)
-print *, "Value of rhs at specific index: ", host_rhs9(some_i, some_j, some_k)
+print *, "Value of p0 at specific index: ", host_9(6, 9, 10)
+print *, "Value of rhs at specific index: ", host_rhs9(6, 9, 10)
 
 
 
