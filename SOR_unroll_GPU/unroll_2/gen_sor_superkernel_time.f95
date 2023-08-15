@@ -23,8 +23,8 @@ program main
     real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
 
     n = (im+1)*(jm+1)*(km+1)
-    ! numBlocks = (n + blockSize - 1) / blockSize
-    numBlocks = n
+    numBlocks = (n + blockSize - 1) / blockSize
+    ! numBlocks = n
 
     allocate(p0_0_dev(n), rhs_0_dev(n), p2_1_dev(n))
 
@@ -65,7 +65,7 @@ program main
     do iter = 1, niters
         print *, iter
         ! call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
-        call sor_superkernel<<<numBlocks, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
+        call sor_superkernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
     end do
 
     istat = cudaEventRecord(stopCompute, 0)
