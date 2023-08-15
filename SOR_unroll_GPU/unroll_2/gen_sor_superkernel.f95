@@ -1,60 +1,76 @@
 ! gen_sor_superkernel.f95
 program main
-#ifdef WITH_OPENMP
-use omp_lib
-#endif
-use singleton_module_sor_superkernel, only : sor_superkernel
-!    ! integer :: global_id
-!    ! common /ocl/ global_id
-!    ! Declarations
-      implicit none
-     integer, parameter :: im=100
-     integer, parameter :: jm=100
-     integer, parameter :: km=80
-    integer :: i
-    integer :: j
-    integer :: k
-    integer :: global_id_0
-    real, dimension(1:853128) :: p0_0
-    real, dimension(1:853128) :: rhs_0
-    real, dimension(1:853128) :: p2_1
-      integer, parameter :: st_stage_kernel_1=1
-    integer :: state_ptr
-      integer, parameter :: niters=100 !300
-    integer :: iter
-#ifdef TIMING
-    integer :: clock_rate
-    integer, dimension(0:1) :: timestamp
-#endif
+  use cudafor
+  use singleton_module_sor_superkernel, only : sor_superkernel
+  implicit none
+  integer, parameter :: im=100
+  integer, parameter :: jm=100
+  integer, parameter :: km=80
+  integer :: i
+  integer :: j
+  integer :: k
+  integer :: global_id_0
+  real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p2_1_dev
+  real, dimension(1:853128) :: p0_0, rhs_0, p2_1
+  integer, parameter :: st_stage_kernel_1=1
+  integer, device :: state_ptr_dev
+  integer, parameter :: niters=100
+  integer :: iter
+  integer :: clock_rate
+  integer, dimension(0:1) :: timestamp
+  integer, parameter :: blockSize = 256
+  integer :: numBlocks
+  integer :: n
 
-    do i = 1,(im+1)*(jm+1)*(km+1)
-        rhs_0(i) = 1.0
-        p0_0(i) = 1.0
-    end do
+  real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
+  integer :: index
 
+  n = (im+1)*(jm+1)*(km+1)
+  numBlocks = (n + blockSize - 1) / blockSize
 
-#ifdef TIMING
-    call system_clock(timestamp(0), clock_rate)
-#endif
-!    ! Loops over stage calls
-    state_ptr = st_stage_kernel_1
-    do iter = 1, niters
-    !print *, iter
-#ifdef WITH_OPENMP
-!$OMP PARALLEL DO
-#endif    
-    do global_id_0 = 1, 853128
-      call sor_superkernel(global_id_0, p0_0, rhs_0, p2_1,state_ptr)
-    end do
-#ifdef WITH_OPENMP
-!$OMP END PARALLEL DO
-#endif    
-    end do
-#ifdef TIMING
-    call system_clock(timestamp(1), clock_rate)
-    print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
-#endif
-#ifdef CHECKSUM
-    print *, p0_0((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
-#endif
-end program main  
+  allocate(p0_0_dev(n), rhs_0_dev(n), p2_1_dev(n))
+  
+  ! Initialize on the host
+  allocate(p0_0_host(n))
+  allocate(rhs_0_host(n))
+  allocate(p2_1_host(n))
+  p0_0_host = 1.0
+  rhs_0_host = 1.0
+
+  ! Copy initialized data to the device
+  p0_0_dev = p0_0_host
+  rhs_0_dev = rhs_0_host
+  
+  state_ptr_dev = st_stage_kernel_1
+  call system_clock(timestamp(0), clock_rate)
+  do iter = 1, niters
+    print *, iter
+    call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
+  end do
+  call system_clock(timestamp(1), clock_rate)
+  print '(f6.3)',(timestamp(1)-timestamp(0))/ real(clock_rate)
+  p2_1 = p2_1_dev
+
+  p2_1_host = p2_1_dev  ! Copy data from device to host after computation
+
+  print *, 'Final result1-100:'
+  print *, 'p2_1:', p2_1(1:100)
+  print *, 'Final result:'
+  print *, 'p2_1:', p2_1(8400:8700)
+  print *, 'Final result10000-10100:'
+  print *, 'p2_1:', p2_1(10000:10100)
+  print *, 'Final result:'
+  print *, 'p2_1:', p2_1(20000:20100)
+
+  index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
+  print *, 'Index:', index
+  print *, 'Value at index:', p2_1_host(index)
+
+  print *, p2_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+
+  ! Deallocate the memory
+  deallocate(p0_0_host)
+  deallocate(rhs_0_host)
+  deallocate(p2_1_host)
+
+end program main
