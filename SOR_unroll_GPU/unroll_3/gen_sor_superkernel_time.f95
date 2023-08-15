@@ -9,7 +9,7 @@ program main
     integer, parameter :: km=320
     integer, parameter :: st_stage_kernel_1=1
     integer, parameter :: niters=12
-    integer, parameter :: blockSize = 256
+    integer, parameter :: blockSize = 1
 
     integer, device :: state_ptr_dev
     integer :: iter, numBlocks, n, index
