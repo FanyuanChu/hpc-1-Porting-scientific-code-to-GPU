@@ -23,7 +23,8 @@ program main
     real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
 
     n = (im+1)*(jm+1)*(km+1)
-    numBlocks = (n + blockSize - 1) / blockSize
+    ! numBlocks = (n + blockSize - 1) / blockSize
+    numBlocks = n
 
     allocate(p0_0_dev(n), rhs_0_dev(n), p2_1_dev(n))
 
