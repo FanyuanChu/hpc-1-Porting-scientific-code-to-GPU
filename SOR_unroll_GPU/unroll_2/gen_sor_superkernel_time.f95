@@ -93,14 +93,14 @@ program main
   print *, "Copy data from device to host time: ", time_copy_from_device / 1000.0, " seconds."
 
   ! Continue with the rest of the code
-  print *, 'Final result1-100:'
-  print *, 'p2_1:', p2_1(1:100)
-  print *, 'Final result:'
-  print *, 'p2_1:', p2_1(8400:8700)
-  print *, 'Final result10000-10100:'
-  print *, 'p2_1:', p2_1(10000:10100)
-  print *, 'Final result:'
-  print *, 'p2_1:', p2_1(20000:20100)
+  ! print *, 'Final result1-100:'
+  ! print *, 'p2_1:', p2_1(1:100)
+  ! print *, 'Final result:'
+  !print *, 'p2_1:', p2_1(8400:8700)
+  !print *, 'Final result10000-10100:'
+  !print *, 'p2_1:', p2_1(10000:10100)
+  !print *, 'Final result:'
+  !print *, 'p2_1:', p2_1(20000:20100)
 
   index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
   print *, 'Index:', index
