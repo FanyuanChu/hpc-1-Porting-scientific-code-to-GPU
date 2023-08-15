@@ -18,7 +18,8 @@ program main
     type(cudaEvent) :: startTotal, stopTotal, startInit, stopInit, startCopyToDevice, stopCopyToDevice, startCompute, stopCompute, startCopyToHost, stopCopyToHost
 
     real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p2_1_dev
-    real, dimension(1:853128) :: p0_0, rhs_0, p2_1
+    ! real, dimension(1:853128) :: p0_0, rhs_0, p2_1
+    real, dimension(1:(im+1)*(jm+1)*(km+1)) :: p0_0, rhs_0, p2_1
     real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
 
     n = (im+1)*(jm+1)*(km+1)
@@ -62,7 +63,8 @@ program main
 
     do iter = 1, niters
         print *, iter
-        call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
+        ! call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
+        call sor_superkernel<<<numBlocks, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
     end do
 
     istat = cudaEventRecord(stopCompute, 0)
