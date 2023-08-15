@@ -4,9 +4,9 @@ program main
     use singleton_module_sor_superkernel, only : sor_superkernel
     implicit none
 
-    integer, parameter :: im=1000
-    integer, parameter :: jm=1000
-    integer, parameter :: km=320
+    integer, parameter :: im=100
+    integer, parameter :: jm=100
+    integer, parameter :: km=80
     integer, parameter :: st_stage_kernel_1=1  ! Moved up
     integer, parameter :: niters=100
     integer, parameter :: blockSize = 256
@@ -18,11 +18,13 @@ program main
     type(cudaEvent) :: startTotal, stopTotal, startInit, stopInit, startCopyToDevice, stopCopyToDevice, startCompute, stopCompute, startCopyToHost, stopCopyToHost
 
     real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p3_1_dev
-    real, dimension(1:853128) :: p0_0, rhs_0, p3_1
+    ! real, dimension(1:853128) :: p0_0, rhs_0, p3_1
+    real, dimension(1:(im+1)*(jm+1)*(km+1)) :: p0_0, rhs_0, p3_1
     real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p3_1_host
 
     n = (im+1)*(jm+1)*(km+1)
     numBlocks = (n + blockSize - 1) / blockSize
+    ! numBlocks = n
 
     allocate(p0_0_dev(n), rhs_0_dev(n), p3_1_dev(n))
 
@@ -62,7 +64,8 @@ program main
 
     do iter = 1, niters
         print *, iter
-        call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr_dev)
+        ! call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr_dev)
+        call sor_superkernel<<<numBlocks, blockSize>>>(p0_0_dev, rhs_0_dev, p3_1_dev, state_ptr_dev)
     end do
 
     istat = cudaEventRecord(stopCompute, 0)
@@ -108,3 +111,4 @@ program main
     deallocate(rhs_0_host)
     deallocate(p3_1_host)
 end program main
+
