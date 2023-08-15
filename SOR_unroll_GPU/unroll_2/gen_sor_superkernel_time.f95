@@ -6,7 +6,7 @@ program main
   implicit none
 
   integer, parameter :: im=100, jm=100, km=80
-  integer :: n, numBlocks, iter, index, istat
+  integer :: n, numBlocks, iter, index, istat, state_ptr_dev
   integer, parameter :: blockSize = 256, niters=100
   real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p2_1_dev
   real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
@@ -55,6 +55,8 @@ program main
   istat = cudaEventRecord(stopCopyToDevice, 0)
   istat = cudaEventSynchronize(stopCopyToDevice)
 
+  state_ptr_dev = st_stage_kernel_1
+
   ! Measure computation time on the device
   istat = cudaEventRecord(startCompute, 0)
   do iter = 1, niters
@@ -88,18 +90,23 @@ program main
   print *, 'Time to copy data from device to host: ', timeCopyToHost * 1.0E-3, ' seconds.'
   print *, 'Total execution time: ', timeTotal * 1.0E-3, ' seconds.'
 
-  ! Rest of the code
+  ! Additional code
   print *, 'Final result1-100:'
   print *, 'p2_1:', p2_1(1:100)
-  print *, 'Final result:', p2_1(8400:8700)
-  print *, 'Final result10000-10100:', p2_1(10000:10100)
-  print *, 'Final result:', p2_1(20000:20100)
+  print *, 'Final result:'
+  print *, 'p2_1:', p2_1(8400:8700)
+  print *, 'Final result10000-10100:'
+  print *, 'p2_1:', p2_1(10000:10100)
+  print *, 'Final result:'
+  print *, 'p2_1:', p2_1(20000:20100)
 
-  index = (im+2)*(jm+2)*(km+2)/2 + (jm+2)*(km+2)/2 + (km+2)/2
+  index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
   print *, 'Index:', index
   print *, 'Value at index:', p2_1_host(index)
-  print *, p2_1((im+2)*(jm+2)*(km+2)/2 + (jm+2)*(km+2)/2 + (km+2)/2)
 
+  print *, p2_1((im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2)
+
+  ! Deallocate memory
   deallocate(p0_0_host, rhs_0_host, p2_1_host)
 
 end program main
