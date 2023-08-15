@@ -4,10 +4,10 @@ program main
     use singleton_module_sor_superkernel, only : sor_superkernel
     implicit none
 
-    integer, parameter :: im=100
-    integer, parameter :: jm=100
-    integer, parameter :: km=80
-    integer, parameter :: st_stage_kernel_1=1  ! Moved up
+    integer, parameter :: im=1000
+    integer, parameter :: jm=1000
+    integer, parameter :: km=320
+    integer, parameter :: st_stage_kernel_1=1
     integer, parameter :: niters=100
     integer, parameter :: blockSize = 256
 
