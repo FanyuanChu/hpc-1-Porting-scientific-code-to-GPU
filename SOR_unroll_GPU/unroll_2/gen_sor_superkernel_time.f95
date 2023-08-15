@@ -1,4 +1,4 @@
-! gen_sor_superkernel.f95
+! gen_sor_superkernel_time.f95
 program main
   use cudafor
   use singleton_module_sor_superkernel, only : sor_superkernel
@@ -19,12 +19,12 @@ program main
   integer, parameter :: blockSize = 256
   integer :: numBlocks
   integer :: n
+  type(cudaEvent) :: start, stop
+  real :: elapsedTime
+  integer :: istat
+
   real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
   integer :: index
-
-  type(cudaEvent_t) :: start_event_total, stop_event_total, start_event_copy, stop_event_copy, start_event_compute, stop_event_compute
-  real :: elapsed_time_total, elapsed_time_copy, elapsed_time_compute
-  integer :: istat
 
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
@@ -38,55 +38,30 @@ program main
   p0_0_host = 1.0
   rhs_0_host = 1.0
 
-  ! Record total start time
-  istat = cudaEventCreate(start_event_total)
-  istat = cudaEventCreate(stop_event_total)
-  istat = cudaEventRecord(start_event_total, 0)
-
-  ! Record copy start time
-  istat = cudaEventCreate(start_event_copy)
-  istat = cudaEventCreate(stop_event_copy)
-  istat = cudaEventRecord(start_event_copy, 0)
-
   ! Copy initialized data to the device
   p0_0_dev = p0_0_host
   rhs_0_dev = rhs_0_host
   
-  ! Record copy stop time
-  istat = cudaEventRecord(stop_event_copy, 0)
-  istat = cudaEventSynchronize(stop_event_copy)
-
-  ! Record compute start time
-  istat = cudaEventCreate(start_event_compute)
-  istat = cudaEventCreate(stop_event_compute)
-  istat = cudaEventRecord(start_event_compute, 0)
-
   state_ptr_dev = st_stage_kernel_1
+
+  ! Creating events for timing
+  istat = cudaEventCreate(start)
+  istat = cudaEventCreate(stop)
+
+  ! Time the kernel execution
+  istat = cudaEventRecord(start, 0)
   do iter = 1, niters
     print *, iter
     call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
   end do
-
-  ! Record compute stop time
-  istat = cudaEventRecord(stop_event_compute, 0)
-  istat = cudaEventSynchronize(stop_event_compute)
-
-  ! Record total stop time
-  istat = cudaEventRecord(stop_event_total, 0)
-  istat = cudaEventSynchronize(stop_event_total)
+  istat = cudaEventRecord(stop, 0)
+  istat = cudaDeviceSynchronize()
+  istat = cudaEventElapsedTime(elapsedTime, start, stop)
+  elapsedTime = elapsedTime / (niters*1.0e3)
+  print *, "Average kernel execution time per iteration: ", elapsedTime, " seconds."
 
   p2_1 = p2_1_dev
   p2_1_host = p2_1_dev  ! Copy data from device to host after computation
-
-  ! Compute elapsed times
-  istat = cudaEventElapsedTime(elapsed_time_total, start_event_total, stop_event_total)
-  istat = cudaEventElapsedTime(elapsed_time_copy, start_event_copy, stop_event_copy)
-  istat = cudaEventElapsedTime(elapsed_time_compute, start_event_compute, stop_event_compute)
-
-  ! Print elapsed times
-  print *, "Total time elapsed: ", elapsed_time_total / 1000.0, " seconds."
-  print *, "Time for data copy: ", elapsed_time_copy / 1000.0, " seconds."
-  print *, "Time for computation: ", elapsed_time_compute / 1000.0, " seconds."
 
   print *, 'Final result1-100:'
   print *, 'p2_1:', p2_1(1:100)
