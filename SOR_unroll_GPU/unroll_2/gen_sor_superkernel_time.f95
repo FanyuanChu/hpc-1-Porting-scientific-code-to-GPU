@@ -8,7 +8,7 @@ program main
     integer, parameter :: jm=1000
     integer, parameter :: km=320
     integer, parameter :: st_stage_kernel_1=1
-    integer, parameter :: niters=100
+    integer, parameter :: niters=12
     integer, parameter :: blockSize = 256
 
     integer, device :: state_ptr_dev
