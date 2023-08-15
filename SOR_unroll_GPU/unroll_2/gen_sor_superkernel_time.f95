@@ -1,4 +1,3 @@
-! gen_sor_superkernel_time.f95
 program main
   use cudafor
   use singleton_module_sor_superkernel, only : sor_superkernel
@@ -6,63 +5,94 @@ program main
   integer, parameter :: im=100
   integer, parameter :: jm=100
   integer, parameter :: km=80
-  integer :: i
-  integer :: j
-  integer :: k
-  integer :: global_id_0
+  integer :: i, j, k, global_id_0, iter
   real, dimension(:), allocatable, device :: p0_0_dev, rhs_0_dev, p2_1_dev
   real, dimension(1:853128) :: p0_0, rhs_0, p2_1
   integer, parameter :: st_stage_kernel_1=1
   integer, device :: state_ptr_dev
   integer, parameter :: niters=100
-  integer :: iter
   integer, parameter :: blockSize = 256
-  integer :: numBlocks
-  integer :: n
-  type(cudaEvent) :: start, stop
-  real :: elapsedTime
-  integer :: istat
-
+  integer :: numBlocks, n
   real, dimension(:), allocatable :: p0_0_host, rhs_0_host, p2_1_host
   integer :: index
+  type(cudaEvent) :: start_total, stop_total, start_init, stop_init, start_copy_to_device, stop_copy_to_device, start_compute, stop_compute, start_copy_from_device, stop_copy_from_device
+  real :: time_total, time_init, time_copy_to_device, time_compute, time_copy_from_device
 
   n = (im+1)*(jm+1)*(km+1)
   numBlocks = (n + blockSize - 1) / blockSize
-
   allocate(p0_0_dev(n), rhs_0_dev(n), p2_1_dev(n))
-  
-  ! Initialize on the host
+
+  istat = cudaEventCreate(start_total)
+  istat = cudaEventCreate(stop_total)
+  istat = cudaEventRecord(start_total, 0)
+
+  ! Measure initialization time
+  istat = cudaEventCreate(start_init)
+  istat = cudaEventCreate(stop_init)
+  istat = cudaEventRecord(start_init, 0)
+
   allocate(p0_0_host(n))
   allocate(rhs_0_host(n))
   allocate(p2_1_host(n))
   p0_0_host = 1.0
   rhs_0_host = 1.0
 
-  ! Copy initialized data to the device
+  istat = cudaEventRecord(stop_init, 0)
+  istat = cudaEventSynchronize(stop_init)
+
+  ! Measure copy data time from host to device
+  istat = cudaEventCreate(start_copy_to_device)
+  istat = cudaEventCreate(stop_copy_to_device)
+  istat = cudaEventRecord(start_copy_to_device, 0)
+
   p0_0_dev = p0_0_host
   rhs_0_dev = rhs_0_host
-  
+
+  istat = cudaEventRecord(stop_copy_to_device, 0)
+  istat = cudaEventSynchronize(stop_copy_to_device)
+
   state_ptr_dev = st_stage_kernel_1
 
-  ! Creating events for timing
-  istat = cudaEventCreate(start)
-  istat = cudaEventCreate(stop)
+  ! Measure compute time
+  istat = cudaEventCreate(start_compute)
+  istat = cudaEventCreate(stop_compute)
+  istat = cudaEventRecord(start_compute, 0)
 
-  ! Time the kernel execution
-  istat = cudaEventRecord(start, 0)
   do iter = 1, niters
-    print *, iter
     call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
   end do
-  istat = cudaEventRecord(stop, 0)
-  istat = cudaDeviceSynchronize()
-  istat = cudaEventElapsedTime(elapsedTime, start, stop)
-  elapsedTime = elapsedTime / (niters*1.0e3)
-  print *, "Average kernel execution time per iteration: ", elapsedTime, " seconds."
 
-  p2_1 = p2_1_dev
-  p2_1_host = p2_1_dev  ! Copy data from device to host after computation
+  istat = cudaEventRecord(stop_compute, 0)
+  istat = cudaEventSynchronize(stop_compute)
 
+  ! Measure copy data time from device to host
+  istat = cudaEventCreate(start_copy_from_device)
+  istat = cudaEventCreate(stop_copy_from_device)
+  istat = cudaEventRecord(start_copy_from_device, 0)
+
+  p0_0 = p0_0_dev
+  p2_1_host = p2_1_dev
+
+  istat = cudaEventRecord(stop_copy_from_device, 0)
+  istat = cudaEventSynchronize(stop_copy_from_device)
+
+  istat = cudaEventRecord(stop_total, 0)
+  istat = cudaEventSynchronize(stop_total)
+
+  ! Calculate and print times
+  istat = cudaEventElapsedTime(time_total, start_total, stop_total)
+  istat = cudaEventElapsedTime(time_init, start_init, stop_init)
+  istat = cudaEventElapsedTime(time_copy_to_device, start_copy_to_device, stop_copy_to_device)
+  istat = cudaEventElapsedTime(time_compute, start_compute, stop_compute)
+  istat = cudaEventElapsedTime(time_copy_from_device, start_copy_from_device, stop_copy_from_device)
+
+  print *, "Total time elapsed on GPU: ", time_total / 1000.0, " seconds."
+  print *, "Initialization time: ", time_init / 1000.0, " seconds."
+  print *, "Copy data to device time: ", time_copy_to_device / 1000.0, " seconds."
+  print *, "Compute time on GPU: ", time_compute / 1000.0, " seconds."
+  print *, "Copy data from device to host time: ", time_copy_from_device / 1000.0, " seconds."
+
+  ! Continue with the rest of the code
   print *, 'Final result1-100:'
   print *, 'p2_1:', p2_1(1:100)
   print *, 'Final result:'
