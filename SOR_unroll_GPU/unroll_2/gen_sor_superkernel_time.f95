@@ -7,7 +7,7 @@ program main
     integer, parameter :: im=1000
     integer, parameter :: jm=1000
     integer, parameter :: km=320
-    integer, parameter :: st_stage_kernel_1=1  ! Moved up
+    integer, parameter :: st_stage_kernel_1=1
     integer, parameter :: niters=100
     integer, parameter :: blockSize = 256
 
