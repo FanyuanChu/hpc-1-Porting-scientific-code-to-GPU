@@ -1,25 +1,33 @@
 ! sor_superkernel.cuf
 module singleton_module_sor_superkernel
-use cudafor
-contains
-
-attributes(global) subroutine sor_superkernel(global_id_0, p0_0, rhs_0, p2_1, state_ptr)
+  use cudafor
+  contains
+  attributes(global) subroutine sor_superkernel(p0_0, rhs_0, p2_1, state_ptr)
     use singleton_module_stage_kernel_1, only: stage_kernel_1
     implicit none
-    integer, dimension(:), device :: global_id_0
-    real, dimension(:), device :: p0_0, rhs_0, p2_1
-    integer, dimension(:), device :: state_ptr
+    real, dimension(1:*), device, intent(in) :: p0_0
+    real, dimension(1:*), device, intent(in) :: rhs_0
+    real, dimension(1:*), device, intent(out) :: p2_1
     integer, parameter :: st_stage_kernel_1=1
     integer :: state
-    integer :: idx
+    integer, intent(In) :: state_ptr
+    integer :: global_id_0
+    !
+    !integer :: i
 
-    idx = (blockIdx%x - 1) * blockDim%x + threadIdx%x
-    state = state_ptr(idx)
+    state = state_ptr 
 
-    if (state == st_stage_kernel_1) then
-      call stage_kernel_1(global_id_0(idx), p0_0, rhs_0, p2_1)
-    end if
+    global_id_0 = threadIdx%x + (blockIdx%x - 1) * blockDim%x
 
-end subroutine sor_superkernel
+    !if (global_id_0 == 30000) then
+    !do i = 20000, 20100
+      !print *, 'p0_0(', i, ') = ', p0_0(i)
+    !end do
+  !end if
 
+    select case(state)
+      case (st_stage_kernel_1)
+        call stage_kernel_1(global_id_0, p0_0, rhs_0, p2_1)
+    end select
+  end subroutine sor_superkernel
 end module singleton_module_sor_superkernel
