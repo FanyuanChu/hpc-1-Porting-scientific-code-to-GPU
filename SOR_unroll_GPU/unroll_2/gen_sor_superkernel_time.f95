@@ -14,7 +14,7 @@ program main
     !integer, parameter :: UNROLL = 2
     !integer, parameter :: UNROLL = 1
   
-    integer, parameter :: blockSize = 1
+    integer, parameter :: blockSize = 256
 
     integer, device :: state_ptr_dev
     integer :: iter, numBlocks, n, index
