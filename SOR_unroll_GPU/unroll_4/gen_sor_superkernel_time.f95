@@ -90,14 +90,14 @@ program main
     istat = cudaEventElapsedTime(elapsedTimeCopyToHost, startCopyToHost, stopCopyToHost)
 
     ! Print results
-    print *, 'Final result1-100:'
-    print *, 'p4_1:', p4_1(1:100)
-    print *, 'Final result:'
-    print *, 'p4_1:', p4_1(8400:8700)
-    print *, 'Final result10000-10100:'
-    print *, 'p4_1:', p4_1(10000:10100)
-    print *, 'Final result:'
-    print *, 'p4_1:', p4_1(20000:20100)
+    !print *, 'Final result1-100:'
+    !print *, 'p4_1:', p4_1(1:100)
+    !print *, 'Final result:'
+    !print *, 'p4_1:', p4_1(8400:8700)
+    !print *, 'Final result10000-10100:'
+    !print *, 'p4_1:', p4_1(10000:10100)
+    !print *, 'Final result:'
+    !print *, 'p4_1:', p4_1(20000:20100)
 
     index = (im+2)*(jm+2)*(km+2)/2+(jm+2)*(km+2)/2+(km+2)/2
     print *, 'Index:', index
