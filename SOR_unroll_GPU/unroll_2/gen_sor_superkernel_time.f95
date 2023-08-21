@@ -29,8 +29,8 @@ program main
     
     !integer, parameter :: UNROLL = 4
     !integer, parameter :: UNROLL = 3
-    integer, parameter :: UNROLL = 2
-    !integer, parameter :: UNROLL = 1
+    !integer, parameter :: UNROLL = 2
+    integer, parameter :: UNROLL = 1
   
     integer, parameter :: blockSize = 256
 
