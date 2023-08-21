@@ -9,6 +9,11 @@ program main
     integer, parameter :: km=320
     integer, parameter :: st_stage_kernel_1=1
     integer, parameter :: niters=12
+    integer, parameter :: UNROLL = 4
+    !integer, parameter :: UNROLL = 3
+    !integer, parameter :: UNROLL = 2
+    !integer, parameter :: UNROLL = 1
+  
     integer, parameter :: blockSize = 1
 
     integer, device :: state_ptr_dev
