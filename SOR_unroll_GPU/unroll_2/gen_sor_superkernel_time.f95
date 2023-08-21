@@ -8,7 +8,8 @@ program main
     integer, parameter :: jm=1000
     integer, parameter :: km=320
     integer, parameter :: st_stage_kernel_1=1
-    integer, parameter :: niters=12
+    !integer, parameter :: niters=12
+    integer, parameter :: niters=
     integer, parameter :: UNROLL = 4
     !integer, parameter :: UNROLL = 3
     !integer, parameter :: UNROLL = 2
