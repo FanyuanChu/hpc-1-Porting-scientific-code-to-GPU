@@ -8,7 +8,7 @@ program main
     integer, parameter :: jm=1000
     integer, parameter :: km=320
     integer, parameter :: st_stage_kernel_1=1
-    integer, parameter :: niters=12
+    !integer, parameter :: niters=12
     integer, parameter :: UNROLL = 4
     !integer, parameter :: UNROLL = 3
     !integer, parameter :: UNROLL = 2
@@ -17,6 +17,7 @@ program main
     integer, parameter :: blockSize = 256
 
     integer, device :: state_ptr_dev
+    integer :: niters !!!
     integer :: iter, numBlocks, n, index
     integer :: istat
     real(4) :: elapsedTimeTotal, elapsedTimeInit, elapsedTimeCopyToDevice, elapsedTimeCompute, elapsedTimeCopyToHost
