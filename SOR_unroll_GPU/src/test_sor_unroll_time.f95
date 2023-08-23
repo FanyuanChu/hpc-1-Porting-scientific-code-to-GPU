@@ -3,9 +3,9 @@ program test_sor_unroll
   use sor_params
   use sor_routines
 
-  integer, parameter :: UNROLL = 4
+  !integer, parameter :: UNROLL = 4
   !integer, parameter :: UNROLL = 3
-  !integer, parameter :: UNROLL = 2
+  integer, parameter :: UNROLL = 2
   !integer, parameter :: UNROLL = 1
   real, device, allocatable :: p0(:,:,:), p1(:,:,:), p2(:,:,:), p3(:,:,:), p4(:,:,:), rhs(:,:,:)
   real, allocatable :: rhs_host(:,:,:), p0_host(:,:,:)
