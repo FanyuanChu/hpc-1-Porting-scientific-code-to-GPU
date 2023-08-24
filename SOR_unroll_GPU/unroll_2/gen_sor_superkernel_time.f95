@@ -85,7 +85,6 @@ program main
     istat = cudaEventCreate(stopCompute)
     istat = cudaEventRecord(startCompute, 0)
 
-    niters = 12
     do iter = 1, niters
         print *, iter
         ! call sor_superkernel<<<853128, 1>>>(p0_0_dev, rhs_0_dev, p2_1_dev, state_ptr_dev)
