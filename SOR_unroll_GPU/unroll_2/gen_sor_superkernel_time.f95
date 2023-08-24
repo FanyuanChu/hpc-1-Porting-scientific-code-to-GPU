@@ -34,7 +34,7 @@ program main
     integer, parameter :: blockSize = 256
 
     integer, device :: state_ptr_dev
-    integer :: niters !!!
+    
     integer :: iter, numBlocks, n, index
     integer :: istat
     real(4) :: elapsedTimeTotal, elapsedTimeInit, elapsedTimeCopyToDevice, elapsedTimeCompute, elapsedTimeCopyToHost
