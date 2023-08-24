@@ -3,7 +3,7 @@ module sor_params
 use cudafor
 integer, parameter :: im=1000
 integer, parameter :: jm=1000
-integer, parameter :: km=480
+integer, parameter :: km=640
 
 !integer, parameter :: im=1000
 !integer, parameter :: jm=1000
