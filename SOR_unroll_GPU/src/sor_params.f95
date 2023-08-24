@@ -17,11 +17,11 @@ use cudafor
 !integer, parameter :: jm=200
 !integer, parameter :: km=320
 
-! integer, parameter :: im=200
-! integer, parameter :: jm=200
-! integer, parameter :: km=160
+integer, parameter :: im=200
+integer, parameter :: jm=200
+integer, parameter :: km=160
 
-integer, parameter :: im=100
-integer, parameter :: jm=100
-integer, parameter :: km=80
+!integer, parameter :: im=100
+!integer, parameter :: jm=100
+!integer, parameter :: km=80
 end module sor_params
