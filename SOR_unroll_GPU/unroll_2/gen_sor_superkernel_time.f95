@@ -6,7 +6,7 @@ program main
 
     integer, parameter :: im=1000
     integer, parameter :: jm=1000
-    integer, parameter :: km=640
+    integer, parameter :: km=480
     
     !integer, parameter :: im=1000
     !integer, parameter :: jm=1000
