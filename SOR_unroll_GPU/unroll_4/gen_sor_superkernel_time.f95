@@ -4,9 +4,9 @@ program main
     use singleton_module_sor_superkernel, only : sor_superkernel
     implicit none
 
-    integer, parameter :: im=1000
-    integer, parameter :: jm=1000
-    integer, parameter :: km=320
+    !integer, parameter :: im=1000
+    !integer, parameter :: jm=1000
+    !integer, parameter :: km=320
     
     !integer, parameter :: im=500
     !integer, parameter :: jm=500
